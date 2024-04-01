@@ -1,0 +1,83 @@
+/* style.css */
+
+form {
+    background: #ffffff;
+    max-width: 360px;
+    margin: 0 auto;
+    
+    border-radius: 15px;
+}
+
+h1 {
+    margin-bottom: 30px;
+    color: #333333;
+}
+
+.user-box {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.user-box input {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #333333;
+    margin-bottom: 30px;
+    border: none;
+    border-bottom: 1px solid #cccccc;
+    outline: none;
+    background: transparent;
+}
+
+.user-box label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #333333;
+    pointer-events: none;
+    transition: 0.5s;
+}
+
+.user-box input:focus~label,
+.user-box input:valid~label {
+    top: -20px;
+    font-size: 12px;
+    color: #4caf50;
+}
+
+button {
+    border: none;
+    outline: none;
+    height: 40px;
+    width: 100%;
+    background: #4caf50;
+    color: #ffffff;
+    font-size: 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+/* Trong file login-style.css hoặc bất kỳ file CSS nào bạn sử dụng */
+
+/* Đảm bảo các radio button được hiển thị theo hàng dọc */
+/* Trong file login-style.css hoặc bất kỳ file CSS nào bạn sử dụng */
+
+/* Đảm bảo các radio button được hiển thị theo hàng dọc */
+.radio-buttons label {
+  display: block;
+  margin-bottom: 10px; /* Khoảng cách giữa các radio button */
+  padding-left: 10px; /* Sát lề trái */
+}
+
+/* Tùy chỉnh kiểu của radio button */
+.radio-buttons input[type="radio"] {
+  margin-right: 5px; /* Khoảng cách giữa radio button và văn bản */
+}
