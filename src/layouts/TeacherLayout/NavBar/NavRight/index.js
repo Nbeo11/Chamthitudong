@@ -20,7 +20,7 @@ const NavRight = () => {
 
   const handleLogout = () => {
     // Xóa giá trị từ localStorage khi đăng xuất
-    localStorage.removeItem('userName');
+    localStorage.clear();
   };
 
   return (

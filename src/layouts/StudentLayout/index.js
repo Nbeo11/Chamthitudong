@@ -8,6 +8,7 @@ import { ConfigContext } from '../../contexts/ConfigContext';
 import useOutsideClick from '../../hooks/useOutsideClick';
 import useWindowSize from '../../hooks/useWindowSize';
 import * as actionType from '../../store/actions';
+import Titile from './Title';
 
 const StudentLayout = ({ children }) => {
   const windowSize = useWindowSize();
@@ -43,7 +44,7 @@ const StudentLayout = ({ children }) => {
 
   let common = (
     <React.Fragment>
-     
+
 
     </React.Fragment>
   );
@@ -51,7 +52,8 @@ const StudentLayout = ({ children }) => {
   let mainContainer = (
     <React.Fragment>
       <div className="pcoded-main-container-student">
-        <Header/>
+        <Header />
+        <Titile />
         <div className={mainClass.join(' ')}>
           <div className="pcoded-content-student">
             <div className="pcoded-inner-content">

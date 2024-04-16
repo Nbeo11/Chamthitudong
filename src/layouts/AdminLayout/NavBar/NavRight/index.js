@@ -20,7 +20,7 @@ const NavRight = () => {
 
   const handleLogout = () => {
     // Xóa giá trị từ localStorage khi đăng xuất
-    localStorage.removeItem('userName');
+    localStorage.clear();
   };
 
 
@@ -31,7 +31,7 @@ const NavRight = () => {
 
         <ListGroup.Item as="li" bsPrefix=" ">
           <Dropdown align="start" className="drp-user">
-          <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
+            <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
               <img src={avatar1} className="img-radius" alt="User Profile" />
               <span>{userName}</span>
             </Dropdown.Toggle>
@@ -65,7 +65,7 @@ const NavRight = () => {
                   </Link>
                 </ListGroup.Item>
                 <ListGroup.Item as="li" bsPrefix=" ">
-                <Link to="/login" className="dropdown-item" onClick={handleLogout}>
+                  <Link to="/login" className="dropdown-item" onClick={handleLogout}>
                     <i className="feather icon-log-out" /> Logout
                   </Link>
                 </ListGroup.Item>

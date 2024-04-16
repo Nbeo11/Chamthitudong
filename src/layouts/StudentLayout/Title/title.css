@@ -1,0 +1,16 @@
+.title {
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-top: 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F2EAEA;
+    color: rgb(0, 0, 0);
+}
+.title1{
+    font-size: 18px;
+    margin: 15px 30px 15px 50px;
+    font-weight: bold;
+}

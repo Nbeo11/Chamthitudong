@@ -124,8 +124,8 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/tabs-pills',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTabsPills'))
+        path: '/app/module/module_addnew',
+        element: lazy(() => import('./views/admin/module/Module_addnew'))
       },
       {
         exact: 'true',
@@ -241,13 +241,13 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/button',
-        element: lazy(() => import('./views/ui-elements/basic/BasicButton'))
+        path: '/huong-dan-su-dung',
+        element: lazy(() => import('./views/student/Student_exam'))
       },
       {
         exact: 'true',
-        path: '/basic/badges',
-        element: lazy(() => import('./views/ui-elements/basic/BasicBadges'))
+        path: '/student_exam',
+        element: lazy(() => import('./views/student/module/Module_view'))
       },
       {
         exact: 'true',

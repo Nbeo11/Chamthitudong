@@ -1,0 +1,25 @@
+.instruction {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    background-color: rgb(120, 147, 218);
+    padding: 20px;
+
+    .card {
+        margin: 0;
+        background-color: rgb(120, 147, 218);
+        
+        .card-body {
+            border: none;
+            border-bottom: none !important;
+            box-shadow: none;
+        }
+        p {
+            font-size: 18px;
+        }
+    }
+}
+h4 {
+    margin-top: 50px !important;
+    color: rgb(95, 81, 220);
+}

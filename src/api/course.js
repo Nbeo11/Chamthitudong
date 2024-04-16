@@ -8,8 +8,8 @@ export const getCoursedetails = async (_id) => {
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
 
-export const updateCourse = async (_id) => {
-    const response = await axios.put(`${API_ENDPOINTS.COURSES}/${_id}`, {
+export const updateCourse = async (_id, data) => {
+    const response = await axios.put(`${API_ENDPOINTS.COURSES}/${_id}`, {data
     });
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
