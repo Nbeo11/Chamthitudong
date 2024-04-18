@@ -74,11 +74,11 @@ label {
   border-radius: 50%;
 }
 
-.page-header-title + .breadcrumb {
+.page-header-title+.breadcrumb {
   background: transparent;
   padding: 0;
 
-  > .breadcrumb-item {
+  >.breadcrumb-item {
     a {
       color: #888;
     }
@@ -132,17 +132,17 @@ p.text-muted {
   margin: 20px 0 20px 0;
   transition: all 0.5s ease-in-out;
   --bs-card-title-color: #111;
+
   .card-header {
     background-color: transparent;
-    border-bottom: 1px solid #f1f1f1;
-    padding: 20px 25px;
+    border-bottom: 1px solid #5e5c5c;
     position: relative;
 
     h5 {
       margin-bottom: 0;
       color: #000;
-      font-size: 17px;
-      font-weight: 400;
+      font-size: 15px;
+      font-weight: bold;
       display: inline-block;
       margin-right: 10px;
       line-height: 1.1;
@@ -218,12 +218,7 @@ p.text-muted {
     padding: 25px;
   }
 
-  .card-block,
-  .card-body {
-    padding: 30px 25px;
-    border: 1px solid rgb(153, 152, 152);
-    border-radius: 5px;
-  }
+  
 
   &.card-load {
     position: relative;
@@ -308,11 +303,11 @@ p.text-muted {
     }
   }
 
-  > li {
+  >li {
     padding-left: 15px;
     padding-right: 15px;
 
-    > a {
+    >a {
       padding: 5px;
       color: $theme-font-color;
 
@@ -331,7 +326,7 @@ p.text-muted {
     &:hover {
       background: transparentize($primary-color, 0.9);
 
-      > a {
+      >a {
         background: transparent;
       }
     }
@@ -364,8 +359,9 @@ p.text-muted {
   margin-bottom: 15px;
 
   .row {
-    > [class^='col-'],
-    > .col {
+
+    >[class^='col-'],
+    >.col {
       padding-top: 0.75rem;
       padding-bottom: 0.75rem;
       background-color: rgba(86, 61, 124, 0.15);
@@ -373,7 +369,7 @@ p.text-muted {
     }
   }
 
-  .row + .row {
+  .row+.row {
     margin-top: 1rem;
   }
 
@@ -567,11 +563,11 @@ p.text-muted {
   height: 100vh;
   overflow: auto;
 
-  > pre {
+  >pre {
     overflow: hidden;
     width: fit-content;
 
-    > code {
+    >code {
       padding: 0;
       background: none;
       font-size: 16px;
@@ -717,7 +713,7 @@ p.text-muted {
 
 /* ================================    md animated mode start   ===================== */
 
-.md-show.md-effect-12 ~ .md-overlay {
+.md-show.md-effect-12~.md-overlay {
   background: $theme-color;
 }
 
@@ -750,6 +746,7 @@ p.text-muted {
     }
   }
 }
+
 /* ================================    range slider End  ===================== */
 
 /* ================================    Bootstrap tags input Start  ===================== */
@@ -847,18 +844,18 @@ p.text-muted {
     margin: 0 auto;
     width: 720px;
 
-    > li {
+    >li {
       float: left;
       vertical-align: top;
 
-      > a {
+      >a {
         display: block;
         color: #000;
         width: 140px;
         font-size: 15px;
         padding: 15px 0;
 
-        > div {
+        >div {
           margin-top: 10px;
         }
 
@@ -910,8 +907,8 @@ p.text-muted {
 }
 
 .table-info,
-.table-info > td,
-.table-info > th {
+.table-info>td,
+.table-info>th {
   --bs-table-bg: #bee5eb;
   background-color: #bee5eb;
 }
@@ -924,17 +921,17 @@ p.text-muted {
   color: #212529;
   background: rgba(4, 169, 245, 0.05);
 
-  > * {
+  >* {
     --bs-table-color-state: #212529;
   }
 }
 
-.table-hover > tbody > tr:hover > * {
+.table-hover>tbody>tr:hover>* {
   --bs-table-bg-state: rgba(4, 169, 245, 0.05);
 }
 
-.btn-check:checked + .btn:not([class*='btn-']),
-:not(.btn-check) + .btn:active,
+.btn-check:checked+.btn:not([class*='btn-']),
+:not(.btn-check)+.btn:active,
 .btn:first-child:active,
 .btn.active,
 .btn.show {
@@ -997,6 +994,7 @@ p.text-muted {
 }
 
 .btn.text-secondary.btn-link {
+
   &:active,
   &.active,
   &.show {

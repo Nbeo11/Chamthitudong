@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 
 import ChatList from './ChatList';
 
-import avatar1 from '../../../../assets/images/user/avatar-1.jpg';
-
 const NavRight = () => {
   const [listOpen, setListOpen] = useState(false);
   const [userName, setUserName] = useState('');
@@ -32,12 +30,10 @@ const NavRight = () => {
         <ListGroup.Item as="li" bsPrefix=" ">
           <Dropdown align="start" className="drp-user">
             <Dropdown.Toggle as={Link} variant="link" to="#" id="dropdown-basic">
-              <img src={avatar1} className="img-radius" alt="User Profile" />
               <span>{userName}</span>
             </Dropdown.Toggle>
             <Dropdown.Menu align="end" className="profile-notification">
               <div className="pro-head">
-                <img src={avatar1} className="img-radius" alt="User Profile" />
                 <span>{userName}</span>
                 <Link to="#" className="dud-logout" title="Logout" onClick={handleLogout}>
                   <i className="feather icon-log-out" />

@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { createModule } from '../../../api/module';
+import '../../../assets/css/table.css';
 import './module.css';
+
 
 const Module_addnew = () => {
     const [modulecode, setModuleCode] = useState('');
@@ -20,10 +22,10 @@ const Module_addnew = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleSave = () => {
-        const requiredFields = [modulecode, modulename, numofcredit, compulsory];
-        const allFieldsFilled = requiredFields.every(field => field.trim() !== '');
+        const requiredFields = [modulecode, modulename, numofcredit];
+        const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
 
-        if (allFieldsFilled) {
+        if (allFieldsFilled && typeof compulsory === 'boolean') {
             setModalIsOpen(true);
             setRequiredFieldsFilled(true);
             setErrorMessage('');
@@ -106,7 +108,7 @@ const Module_addnew = () => {
                                         <Form.Label column sm={4}>Tính chất học phần:</Form.Label>
                                         <Col sm={5} className="d-flex align-items-center">
                                             <Form.Select
-                                                style={{ fontSize: '10px', padding: '8px', borderColor:'black' }}
+                                                style={{ fontSize: '10px', padding: '8px', borderColor: 'black' }}
                                                 value={compulsory.toString()}
                                                 onChange={e => setCompulsory(e.target.value === 'true')}
                                             >
@@ -137,7 +139,7 @@ const Module_addnew = () => {
                                 <Col md={4}>
                                     <Form.Group as={Row} className="mb-3" controlId="numoftheory">
                                         <Form.Label column md={6} sm={4}>Số tiết lý thuyết:</Form.Label>
-                                        <Col sm={4}>
+                                        <Col md={4} sm={2}>
                                             <Form.Control
                                                 type="number"
                                                 placeholder="0"
@@ -148,7 +150,7 @@ const Module_addnew = () => {
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="numofpractice">
                                         <Form.Label column md={6} sm={4}>Số tiết thực hành:</Form.Label>
-                                        <Col sm={4}>
+                                        <Col md={4} sm={2}>
                                             <Form.Control
                                                 type="number"
                                                 placeholder="0"
@@ -161,7 +163,7 @@ const Module_addnew = () => {
                                 <Col md={4}>
                                     <Form.Group as={Row} className="mb-3" controlId="numoftask">
                                         <Form.Label column md={6} sm={4}>Số tiết bài tập:</Form.Label>
-                                        <Col sm={4}>
+                                        <Col md={4} sm={2}>
                                             <Form.Control
                                                 type="number"
                                                 placeholder="0"
@@ -172,7 +174,7 @@ const Module_addnew = () => {
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="numofexam">
                                         <Form.Label column md={6} sm={4}>Số tiết kiểm tra:</Form.Label>
-                                        <Col sm={4}>
+                                        <Col md={4} sm={2}>
                                             <Form.Control
                                                 type="number"
                                                 placeholder="0"
@@ -182,21 +184,28 @@ const Module_addnew = () => {
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col md={8}>
+                                <Col md={12}>
                                     <Form.Group as={Row} className="mb-3" controlId="note">
-                                        <Form.Label column md={3} sm={4}>Ghi chú:</Form.Label>
+                                        <Form.Label column md={2} sm={4}>Ghi chú:</Form.Label>
                                         <Col sm={8}>
                                             <Form.Control
-
-                                                type="text"
+                                                as="textarea" // Use textarea element
+                                                rows={1} // Start with 1 row
+                                                placeholder="Ghi chú"
                                                 value={note}
-                                                onChange={e => setNote(e.target.value)} />
+                                                onChange={e => setNote(e.target.value)}
+                                                style={{ resize: "vertical" }} // Allow vertical resizing
+                                            />
                                         </Col>
                                     </Form.Group>
-                                    {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
+                                    {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                                </Col>
+                                <Col md ={2}>
+                                </Col>
+                                <Col>
                                     <Button variant="primary" onClick={handleSave}>Ghi dữ liệu</Button>
-                                    <Button variant="primary" onClick={() => window.history.back()}>Quay lại</Button> {/* Nút quay lại */}
+                                    <Button variant="primary" className='back-button' onClick={() => window.history.back()}>Quay lại</Button> 
                                 </Col>
                             </Row>
                         </Card.Body>
@@ -219,9 +228,9 @@ const Module_addnew = () => {
                     }
                 }}
             >
-                <h2>Xác nhận thêm mới loại câu hỏi</h2>
+                <h4>Xác nhận thêm học phần mới</h4>
                 <div>
-                    <p>Bạn có muốn thêm loại câu hỏi này không?</p>
+                    <p>Bạn có muốn thêm học phần này không?</p>
                     <Button onClick={handleConfirm}>Xác nhận</Button>
                     <Button onClick={handleCancel}>Hủy</Button>
                 </div>

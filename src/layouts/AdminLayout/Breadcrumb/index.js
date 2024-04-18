@@ -60,12 +60,12 @@ const Breadcrumb = () => {
       breadcrumbContent = (
         <div className="page-header">
           <div className="page-block">
-            <div className="row align-items-center">
+            <div className="row align-items-center" style={{marginBottom:'0'}}>
               <div className="col-md-12">
                 <div className="page-header-title">
                   <h5 className="m-b-10">{title}</h5>
                 </div>
-                <ListGroup as="ul" bsPrefix=" " className="breadcrumb">
+                <ListGroup as="ul" bsPrefix=" " className="breadcrumb" style={{marginBottom:'0'}}>
                   <ListGroup.Item as="li" bsPrefix=" " className="breadcrumb-item">
                     <Link to="/">
                       <i className="feather icon-home" />

@@ -60,7 +60,7 @@
   z-index: 1028;
   position: relative;
   display: flex;
-  min-height: $header-height;
+  max-height: 30px;
   padding: 0;
   position: relative;
   top: 0;
@@ -820,7 +820,7 @@
   align-items: center;
   justify-content: center;
   width: 37px;
-  height: $header-height;
+  height: 30px;
   position: absolute;
   right: 0;
   top: 0;
@@ -894,7 +894,7 @@
 
   @media screen and (max-width: 991px) {
     .pcoded-content .pcoded-inner-content {
-      margin-top: 70px;
+      margin-top: 35px;
     }
   }
 }
@@ -921,7 +921,6 @@
     align-items: center;
     display: inline-flex;
     float: left;
-    height: $header-height;
     text-align: center;
     width: $Menu-width;
     margin-right: 0;
@@ -1188,9 +1187,7 @@
       width: $Menu-collapsed-width;
 
       img {
-        transform: rotateY(-90deg);
         transform-origin: 0 0;
-        opacity: 0;
         transition: unset;
       }
 
@@ -1552,6 +1549,7 @@
       display: flex;
       background: #fff;
       box-shadow: 0 1px 20px 0 rgba(69, 90, 100, 0.08);
+      max-height: 30px;
     }
 
     .mob-toggler {
@@ -1572,7 +1570,7 @@
       justify-content: flex-start;
       align-items: center;
       width: 100%;
-      height: $header-height;
+      height: 30px;
 
       .b-brand {
         margin-left: 20px;

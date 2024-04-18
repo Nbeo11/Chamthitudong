@@ -4,6 +4,9 @@ import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { deleteModule, getAllModule, updateModule } from '../../../api/module';
+import '../../../assets/css/table.css';
+import './module.css';
+
 const Module_management = () => {
     const [modules, setModules] = useState([]);
     const [selectedModuleId, setSelectedModuleId] = useState(null);
@@ -17,7 +20,7 @@ const Module_management = () => {
     const [newNumofpractice, setNewNumOfPractice] = useState('');
     const [newNumoftask, setNewNumOfTask] = useState('');
     const [newNumofexam, setNewNumofExam] = useState('');
-    //const [note, setNote] = useState('');
+    const [newNote, setNewNote] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,13 +52,19 @@ const Module_management = () => {
         setEditingModule(null); // Clear the editingModule state
         setModalIsOpen(true);
     };
-    
+
 
     const openEditModal = (module) => {
         setEditingModule(module);
         setNewModulecode(module.modulecode);
         setNewModulename(module.modulename);
         setNewNumofcredit(module.numofcredit);
+        setNewCompulsory(module.compulsory);
+        setNewNumOfTheory(module.numoftheory);
+        setNewNumOfPractice(module.numofpractice);
+        setNewNumOfTask(module.numoftask);
+        setNewNumofExam(module.numofexam);
+        setNewNote(module.note);
         setModalIsOpen(true);
     };
 
@@ -66,6 +75,12 @@ const Module_management = () => {
                 modulecode: newModulecode,
                 modulename: newModulename,
                 numofcredit: newNumofcredit,
+                compulsory: newCompulsory,
+                numoftheory: newNumoftheory,
+                numofpractice: newNumofpractice,
+                numoftask: newNumoftask,
+                numofexam: newNumofexam,
+                note: newNote
             };
 
             await updateModule(editingModule._id, data);
@@ -86,33 +101,33 @@ const Module_management = () => {
             <Row>
                 <Col>
                     <Card>
-                        <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
+                    <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Các học phần</Card.Title>
                             <Link to="/admin/app/module/module_addnew">
-                                <Button variant="primary">Thêm mới</Button>
+                                <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
-                        <Card.Body>
-                            <Table responsive hover>
+                        <Card.Body >
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
                                         <th>Mã học phần</th>
                                         <th>Tên học phần</th>
                                         <th>Số tín chỉ</th>
-                                        <th>Hành động</th>
+                                        <th className='action-button'>Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {modules && modules.map((module, index) => (
                                         <tr key={module._id}>
-                                            <th scope="row">{index + 1}</th>
-                                            <td>{module.modulecode}</td>
+                                            <th scope="row" className="center-column">{index + 1}</th>
+                                            <td className="center-column">{module.modulecode}</td>
                                             <td>{module.modulename}</td>
-                                            <td>{module.numofcredit}</td>
-                                            <td>
-                                                <Button onClick={() => openEditModal(module)}>Sửa</Button>
-                                                <Button onClick={() => openDeleteModal(module._id)}>Xóa</Button>
+                                            <td className="center-column">{module.numofcredit}</td>
+                                            <td className="center-column">
+                                                <Button className="edit-button" onClick={() => openEditModal(module)}>Sửa</Button>
+                                                <Button className="delete-button" onClick={() => openDeleteModal(module._id)}>Xóa</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -133,11 +148,14 @@ const Module_management = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        maxHeight: '80vh',
+                        width: '50vw',
+                        maxHeight: '70vh',
                         overflow: 'auto', // enable scrolling if content overflows
                         fontSize: '10px',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
@@ -146,83 +164,102 @@ const Module_management = () => {
                         <h4>Chỉnh sửa học phần </h4>
                         <div>
                             <Row>
-                                <Col md={6}>
+                                <Col md={8} >
                                     <Form.Group as={Row} className="mb-3" controlId="newmodulecode">
-                                        <Form.Label column sm={5}>Mã học phần:</Form.Label>
-                                        <Col sm={7}>
+                                        <Form.Label column md={5} sm={5}>Mã học phần:</Form.Label>
+                                        <Col md={7} sm={7}>
                                             <Form.Control type="text" style={{ fontSize: '10px', padding: '5px' }} placeholder="Nhập thông tin mã học phần" value={newModulecode} onChange={e => setNewModulecode(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={8}>
                                     <Form.Group as={Row} className="mb-3" controlId="newModulename">
-                                        <Form.Label column sm={5}>Tên học phần:</Form.Label>
-                                        <Col sm={7}>
+                                        <Form.Label column md={5} sm={5}>Tên học phần:</Form.Label>
+                                        <Col md={7} sm={7}>
                                             <Form.Control type="text" style={{ fontSize: '10px', padding: '5px' }} placeholder="Nhập tên học phần" value={newModulename} onChange={e => setNewModulename(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="newCompulsory">
-                                        <Form.Label column sm={5}>Tính chất học phần:</Form.Label>
-                                        <Col sm={5}>
-                                            <Form.Control type="text" style={{ fontSize: '10px', padding: '5px' }} value={newCompulsory} onChange={e => setNewCompulsory(e.target.value)} />
-                                        </Col>
+                                        <Form.Label column md={5} sm={5}>Tính chất học phần:</Form.Label>
+                                        <Col md={7} sm={7}>
+                                            <Form.Select
+                                                style={{ fontSize: '10px', padding: '8px', borderColor: 'black' }}
+                                                value={newCompulsory.toString()}
+                                                onChange={e => setNewCompulsory(e.target.value === 'true')}
+                                            >
+                                                <option value="true">Bắt buộc</option>
+                                                <option value="false">Tự chọn</option>
+                                            </Form.Select>                                        </Col>
                                     </Form.Group>
 
                                 </Col>
-                                <Col md={6}>
+                                <Col md={4}>
                                     <Form.Group as={Row} className="mb-3" controlId="newNumofcredit">
-                                        <Form.Label column sm={3}>Số tín chỉ:</Form.Label>
-                                        <Col sm={3}>
+                                        <Form.Label column md={6} sm={5}>Số tín chỉ:</Form.Label>
+                                        <Col md={6} sm={3}>
                                             <Form.Control type="number" style={{ fontSize: '10px', padding: '5px' }} value={newNumofcredit} onChange={e => setNewNumofcredit(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <p>Phân bố thời gian học tập: </p>
+                                <p className='time'>Phân bố thời gian học tập: </p>
 
-                                <Col md={4}>
+                                <Col md={6} >
                                     <Form.Group as={Row} className="mb-3" controlId="newNumoftheory">
-                                        <Form.Label column sm={7}>Số tiết lý thuyết:</Form.Label>
-                                        <Col sm={4}>
+                                        <Form.Label column md={6} sm={5}>Số tiết lý thuyết:</Form.Label>
+                                        <Col md={4} sm={3}>
                                             <Form.Control type="number" style={{ fontSize: '10px', padding: '5px' }} value={newNumoftheory} onChange={e => setNewNumOfTheory(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="newNumofpractice">
-                                        <Form.Label column sm={7}>Số tiết thực hành:</Form.Label>
-                                        <Col sm={4}>
+                                        <Form.Label column md={6} sm={5}>Số tiết thực hành:</Form.Label>
+                                        <Col md={4} sm={3}>
                                             <Form.Control type="number" style={{ fontSize: '10px', padding: '5px' }} value={newNumofpractice} onChange={e => setNewNumOfPractice(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={6}>
 
                                     <Form.Group as={Row} className="mb-3" controlId="newNumoftask">
-                                        <Form.Label column sm={7}>Số tiết bài tập:</Form.Label>
-                                        <Col sm={4}>
+                                        <Form.Label column md={6} sm={5}>Số tiết bài tập:</Form.Label>
+                                        <Col md={4} sm={3}>
                                             <Form.Control type="number" style={{ fontSize: '10px', padding: '5px' }} value={newNumoftask} onChange={e => setNewNumOfTask(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                     <Form.Group as={Row} className="mb-3" controlId="newNumofexam">
-                                        <Form.Label column sm={7}>Số tiết kiểm tra:</Form.Label>
-                                        <Col sm={4}>
+                                        <Form.Label column md={6} sm={5}>Số tiết kiểm tra:</Form.Label>
+                                        <Col md={4} sm={3}>
                                             <Form.Control type="number" style={{ fontSize: '10px', padding: '5px' }} value={newNumofexam} onChange={e => setNewNumofExam(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
-
+                                <Col md={12}>
+                                    <Form.Group as={Row} className="mb-3" controlId="newNote">
+                                        <Form.Label column md={3} sm={5}>Ghi chú:</Form.Label>
+                                        <Col sm={6}>
+                                            <Form.Control
+                                                as="textarea" // Use textarea element
+                                                rows={1} // Start with 1 row
+                                                value={newNote}
+                                                onChange={e => setNote(e.target.value)}
+                                                style={{ resize: "vertical" }} // Allow vertical resizing
+                                            />
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
                             </Row>
                             <Button onClick={handleEdit}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <h2>Xác nhận xóa mục </h2>
+                        <h4>Xác nhận xóa mục </h4>
                         <div>
                             <p>Bạn có chắc chắn muốn xóa mục này không?</p>
                             <Button onClick={handleDelete} >Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 )}

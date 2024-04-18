@@ -1,0 +1,85 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 25px;
+}
+
+.add-button {
+    background-color: rgb(3 153 3);
+}
+
+.add-button:hover {
+    background-color: rgb(1, 119, 1);
+}
+
+.back-button {
+    background-color: rgb(3, 199, 3);
+}
+
+.back-button:hover {
+    background-color: rgb(1, 162, 1);
+}
+
+
+.custom-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+.custom-table th,
+.custom-table td {
+    border: 1px solid #ddd;
+    padding: 4px;
+}
+
+
+/* CSS để làm màu nền của hàng đầu tiên trong bảng */
+thead tr:first-child th {
+    background-color: #ccc;
+    /* Màu xám */
+    padding: 10px 5px;
+    text-align: center;
+}
+
+/* CSS để căn giữa nội dung của các cột có lớp center-column */
+.center-column {
+    text-align: center;
+}
+
+/* CSS để thêm khoảng cách giữa các nút "Sửa" và "Xóa" */
+.edit-button {
+    margin-right: 10px;
+    /* Thêm khoảng cách bên phải */
+}
+
+
+.delete-button {
+    margin-left: 10px;
+    /* Thêm khoảng cách bên trái */
+}
+
+.action-button {
+    width: 170px;
+    /* Thiết lập chiều rộng mong muốn, ví dụ 100px */
+}
+
+/* Add this CSS to your module.css file */
+.modal-open {
+    overflow: hidden;
+}
+
+.blur-on-modal-open {
+    filter: blur(1px);
+    /* Adjust the blur effect as needed */
+    transition: filter 0.3s ease;
+    /* Add a transition effect */
+}
+
+/* Adjust the z-index of the modal */
+.ReactModal__Overlay {
+    z-index: 9999;
+    /* Adjust this value if necessary */
+}
