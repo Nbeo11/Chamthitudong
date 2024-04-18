@@ -4,6 +4,8 @@ import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { deleteDifficult, getAllDifficult, updateDifficult } from '../../../api/difficult';
+import '../../../assets/css/table.css';
+
 const Difficulty_category = () => {
     const [difficults, setDifficults] = useState([]);
     const [selectedDifficultyId, setSelectedDifficultyId] = useState(null);
@@ -11,6 +13,7 @@ const Difficulty_category = () => {
     const [editingDifficulty, setEditingDifficulty] = useState(null);
     const [newDifficultyType, setNewDifficultyType] = useState('');
     const [newDifficultyDescription, setNewDifficultyDescription] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,6 +42,7 @@ const Difficulty_category = () => {
 
     const openDeleteModal = (id) => {
         setSelectedDifficultyId(id);
+        openEditModal(false);
         setModalIsOpen(true);
     };
 
@@ -56,9 +60,17 @@ const Difficulty_category = () => {
                 difficulttype: newDifficultyType,
                 difficultdescription: newDifficultyDescription
             };
-
+            const requiredFields = [newDifficultyType, newDifficultyDescription ];
+            const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
+            
+            if (allFieldsFilled) {
+                setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
+                setErrorMessage('');
+            } else {
+                setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
+            }
+            console.log ('errorMessage', errorMessage)
             await updateDifficult(editingDifficulty._id, data);
-            setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
 
             // Cập nhật danh sách độ khó sau khi sửa
             setDifficults(await getAllDifficult());
@@ -75,17 +87,17 @@ const Difficulty_category = () => {
             <Row>
                 <Col>
                     <Card>
-                    <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
+                        <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Danh mục độ khó</Card.Title>
                             <Link to="/admin/app/difficults/difficulty_category_addnew">
-                                <Button variant="primary">Thêm mới</Button>
+                                <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
                         <Card.Body>
-                            <Table responsive hover>
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
+                                        <th>STT</th>
                                         <th>Tên</th>
                                         <th>Mô tả</th>
                                         <th>Hành động</th>
@@ -94,12 +106,12 @@ const Difficulty_category = () => {
                                 <tbody>
                                     {difficults && difficults.map((difficult, index) => (
                                         <tr key={difficult._id}>
-                                            <th scope="row">{index + 1}</th>
-                                            <td>{difficult.difficulttype}</td>
-                                            <td>{difficult.difficultdescription}</td>
-                                            <td>
-                                                <Button onClick={() => openEditModal(difficult)}>Sửa</Button>
-                                                <Button onClick={() => openDeleteModal(difficult._id)}>Xóa</Button>
+                                            <th scope="row" className="center-column">{index + 1}</th>
+                                            <td className="center-column">{difficult.difficulttype}</td>
+                                            <td className="center-column">{difficult.difficultdescription}</td>
+                                            <td className="center-column">
+                                                <Button className="edit-button" onClick={() => openEditModal(difficult)}>Sửa</Button>
+                                                <Button className="delete-button" onClick={() => openDeleteModal(difficult._id)}>Xóa</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -120,35 +132,62 @@ const Difficulty_category = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
                 {editingDifficulty ? (
                     <div>
-                        <h2>Chỉnh sửa độ khó </h2>
+                        <h4>Chỉnh sửa độ khó </h4>
                         <div>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newDifficultyType">Độ khó</Form.Label>
-                                <Form.Control type="text" id="newDifficultyType" value={newDifficultyType} onChange={(e) => setNewDifficultyType(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newDifficultyDescription">Mô tả</Form.Label>
-                                <Form.Control type="text" id="newDifficultyDescription" value={newDifficultyDescription} onChange={(e) => setNewDifficultyDescription(e.target.value)} />
-                            </Form.Group>
+                            <Row>
+                                <Col md={10}>
+                                    <Form.Group as={Row} className="mb-3" controlId="newDifficultyType">
+                                        <Form.Label column md={5} sm={4}>Tên độ khó:</Form.Label>
+                                        <Col md={7} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                style={{ fontSize: '10px', padding: '5px' }}
+                                                placeholder="Nhập tên độ khó"
+                                                value={newDifficultyType}
+                                                onChange={e => setNewDifficultyType(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newDifficultyDescription">
+                                        <Form.Label column md={5} sm={4}>Mô tả:</Form.Label>
+                                        <Col md={7} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                style={{ fontSize: '10px', padding: '5px' }}
+                                                placeholder="Nhập mô tả"
+                                                value={newDifficultyDescription}
+                                                onChange={e => setNewDifficultyDescription(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
 
-                            <Button onClick={handleEdit}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                                    </Form.Group>
+                                    {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
+                                    <Button onClick={handleEdit}>Xác nhận</Button>
+                                    <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <h2>Xác nhận xóa mục </h2>
+                        <h4>Xác nhận xóa mục </h4>
                         <div>
                             <p>Bạn có chắc chắn muốn xóa mục này không?</p>
-                            <Button onClick={handleDelete}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Button onClick={handleDelete} >Xác nhận</Button>
+                            <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 )}

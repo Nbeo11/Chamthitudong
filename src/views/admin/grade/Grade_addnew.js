@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import Modal from 'react-modal'; // Import thư viện react-modal
 import { getAllCourse } from '../../../api/course';
-import { getOlogybyCourseId } from '../../../api/ology';
 import { createGrade } from '../../../api/grade';
+import { getAllOlogy } from '../../../api/ology';
 
 const Grade_addnew = () => {
     const [gradeCode, setGradeCode] = useState('');
@@ -15,31 +15,26 @@ const Grade_addnew = () => {
     const [selectedOlogyId, setSelectedOlogyId] = useState('');
     const [ologies, setOlogies] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [requiredFieldsFilled, setRequiredFieldsFilled] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSave = () => {
-        setModalIsOpen(true); // Mở hộp thoại khi người dùng nhấn "Ghi nhận"
+        const requiredFields = [gradeCode, gradeName, selectedCourseId, selectedOlogyId];
+        const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
+
+        if (allFieldsFilled) {
+            setModalIsOpen(true);
+            setRequiredFieldsFilled(true);
+            setErrorMessage('');
+        } else {
+            setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
+        }
+
     };
 
-    useEffect(() => {
-        if (selectedCourseId) {
-            fetchOlogies(selectedCourseId);
-        }
-    }, [selectedCourseId]);
-
-    useEffect(() => {
-    }, [selectedOlogyId]);
 
 
-    const fetchOlogies = async (courseId) => {
-        try {
-            const response = await getOlogybyCourseId(courseId);
-            setOlogies(response);
-            setSelectedOlogyId(''); // Reset selectedOlogyId to null when selecting a new course
-            setSelectedGradeId('');
-        } catch (error) {
-            console.error('Error fetching ologies:', error);
-        }
-    };
+
 
     const handleConfirm = async () => {
         const data = {
@@ -53,7 +48,7 @@ const Grade_addnew = () => {
             const response = await createGrade(data);
             console.log('API Response:', response);
             setModalIsOpen(false); // Đóng hộp thoại sau khi gọi API thành công
-            window.location.href = '/admin/app/grade/gradebyology';
+            window.location.href = '/admin/app/grade';
         } catch (error) {
             console.error('API Error:', error);
             setModalIsOpen(false); // Đóng hộp thoại nếu gặp lỗi khi gọi API
@@ -67,53 +62,88 @@ const Grade_addnew = () => {
     return (
         <React.Fragment>
             <Row>
-                <Col>
+                <Col sm={12}>
                     <Card>
                         <Card.Header>
                             <Card.Title as="h5">Thêm mới lớp học</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                        <label htmlFor="course">Khóa học:</label>
-                                        <Form.Select id="course" onClick={() => getAllCourse().then(response => setCourses(response))} onChange={(e) => setSelectedCourseId(e.target.value)}>
-                                            <option value=""> Chọn khóa học</option>
-                                            {courses && courses.map(course => (
-                                                <option key={course._id} value={course._id}>{course.coursename}</option>
-                                            ))}
-                                        </Form.Select>
+                                <Col md={6} sm={10}>
+                                    <Form.Group as={Row} className="mb-3" controlId="courseName">
+                                        <Form.Label column md={4} sm={4}>Khóa học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Select
+                                                id="course"
+                                                style={{ fontSize: '10px', borderColor: 'black' }}
+                                                onClick={() => getAllCourse().then(response => setCourses(response))}
+                                                onChange={(e) => setSelectedCourseId(e.target.value)}>
+                                                <option value=""> Chọn khóa học</option>
+                                                {courses && courses.map(course => (
+                                                    <option key={course._id} value={course._id}>{course.coursename}</option>
+                                                ))}
+                                            </Form.Select>
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                        <label htmlFor="course">Chuyên ngành:</label>
-                                        {selectedCourseId && (
-                                            <Form.Select id="ology" onClick={() => getOlogybyCourseId(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
-                                                <option value="">Chọn chuyên ngành</option>
+                                    <Form.Group as={Row} className="mb-3" controlId="ologyName">
+                                        <Form.Label column md={4} sm={4}>Chuyên ngành: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Select
+                                                id="ology"
+                                                style={{ fontSize: '10px', borderColor: 'black' }}
+                                                onClick={() => getAllOlogy().then(response => setOlogies(response))}
+                                                onChange={(e) => setSelectedOlogyId(e.target.value)}>
+                                                <option value=""> Chọn ngành học</option>
                                                 {ologies && ologies.map(ology => (
                                                     <option key={ology._id} value={ology._id}>{ology.ologyname}</option>
                                                 ))}
                                             </Form.Select>
-                                        )}
-                                        {!selectedCourseId && (
-                                            <Form.Select disabled>
-                                                <option value="">Chọn chuyên ngành</option>
-                                            </Form.Select>
-                                        )}
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                        <Form.Label>Mã lớp học: </Form.Label>
-                                        <Form.Control type="text" placeholder="Text" value={gradeCode} onChange={e => setGradeCode(e.target.value)} />
+                                    <Form.Group as={Row} className="mb-3" controlId="gradeCode">
+                                        <Form.Label column md={4} sm={4}>Mã lớp học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Mã lớp học"
+                                                value={gradeCode}
+                                                onChange={e => setGradeCode(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                                        <Form.Label>Tên lớp học:</Form.Label>
-                                        <Form.Control as="textarea" rows="3" value={gradeName} onChange={e => setGradeName(e.target.value)} />
+                                    <Form.Group as={Row} className="mb-3" controlId="gradeName">
+                                        <Form.Label column md={4} sm={4}>Tên lớp học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Mã lớp học"
+                                                value={gradeName}
+                                                onChange={e => setGradeName(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                                        <Form.Label>Mô tả:</Form.Label>
-                                        <Form.Control as="textarea" rows="3" value={gradeDescription} onChange={e => setGradeDescription(e.target.value)} />
+                                    <Form.Group as={Row} className="mb-3" controlId="difficultdescription">
+                                        <Form.Label column md={4} sm={4}>Mô tả: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                as="textarea"
+                                                placeholder='Mô tả'
+                                                rows="3"
+                                                value={gradeDescription}
+                                                onChange={e => setGradeDescription(e.target.value)} />
+                                        </Col>
                                     </Form.Group>
-                                    <Button variant="primary" onClick={handleSave}>Submit</Button>
-                                    <Button variant="primary" onClick={() => window.history.back()}>Quay lại</Button> {/* Nút quay lại */}
+                                    <Col md={12} className="d-flex align-items-center">
+                                        <Col md={4} sm={4}>
+                                        </Col>
+                                        <Col md={7}>
+                                            {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
+                                            <Button variant="primary" onClick={handleSave}>Ghi dữ liệu</Button>
+                                            <Button variant="primary" className='back-button' onClick={() => window.history.back()}>Quay lại</Button>
+                                        </Col>
+                                    </Col>
                                 </Col>
                             </Row>
                         </Card.Body>
@@ -121,7 +151,7 @@ const Grade_addnew = () => {
                 </Col>
             </Row>
             <Modal
-                isOpen={modalIsOpen}
+                isOpen={modalIsOpen && requiredFieldsFilled}
                 onRequestClose={() => setModalIsOpen(false)}
                 style={{
                     content: {
@@ -131,16 +161,22 @@ const Grade_addnew = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%', // Đặt kích thước của hộp thoại ở đây
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
-                <h2>Xác nhận thêm mới loại câu hỏi</h2>
+                <h4>Xác nhận thêm loại câu hỏi mới</h4>
                 <div>
                     <p>Bạn có muốn thêm loại câu hỏi này không?</p>
                     <Button onClick={handleConfirm}>Xác nhận</Button>
-                    <Button onClick={handleCancel}>Hủy</Button>
+                    <Button className='back-button' onClick={handleCancel}>Hủy</Button>
                 </div>
             </Modal>
         </React.Fragment>

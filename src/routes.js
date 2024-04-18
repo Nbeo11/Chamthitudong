@@ -70,13 +70,14 @@ const routes = [
       {
         exact: 'true',
         path: '/app/ology',
-        element: lazy(() => import('./views/admin/ology/Chosecourse'))
+        element: lazy(() => import('./views/admin/ology/Ology_management'))
       },
+      /*
       {
         exact: 'true',
         path: '/app/ology/ologybycourse',
         element: lazy(() => import('./views/admin/ology/Ology_management'))
-      },
+      },*/
       {
         exact: 'true',
         path: '/app/ology/ology_addnew',
@@ -85,16 +86,6 @@ const routes = [
       {
         exact: 'true',
         path: '/app/grade',
-        element: lazy(() => import('./views/admin/grade/Chosecourse'))
-      },
-      {
-        exact: 'true',
-        path: '/app/grade/ologybycourse',
-        element: lazy(() => import('./views/admin/grade/Choseology'))
-      },
-      {
-        exact: 'true',
-        path: '/app/grade/gradebyology',
         element: lazy(() => import('./views/admin/grade/Grade_management'))
       },
       {

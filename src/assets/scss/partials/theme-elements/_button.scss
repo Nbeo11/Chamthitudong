@@ -238,4 +238,6 @@ a.btn-theme {
 
 .btn:not(:disabled):not(.disabled) {
   cursor: pointer;
+  font-size: 9px;
+  padding: 3px 10px;
 }

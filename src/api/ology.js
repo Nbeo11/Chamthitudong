@@ -24,8 +24,8 @@ export const deleteOlogy = async (_id) => {
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
 
-export const getOlogybyCourseId = async (_id) => {
-    const response = await axios.get(`${API_ENDPOINTS.OLOGIES}/${_id}/ologies`, {
+export const getAllOlogy = async () => {
+    const response = await axios.get(`${API_ENDPOINTS.OLOGIES}`, {
     });
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };

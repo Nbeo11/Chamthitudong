@@ -23,7 +23,7 @@
 
 
 .custom-table {
-    margin-top: 20px;
+    margin-top: 5px;
     width: 100%;
     border-collapse: collapse;
     font-size: 10px;
@@ -82,4 +82,30 @@ thead tr:first-child th {
 .ReactModal__Overlay {
     z-index: 9999;
     /* Adjust this value if necessary */
+}
+
+/*table add new*/
+.text-danger {
+    color: red;
+    margin-left: 5px;
+}
+.time {
+    font-size: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-weight: bold;
+}
+.form-control {
+    font-size: 10px;
+    padding: 8px;
+    border-width: 1px;
+    border-color: black;
+    background-color: rgb(255, 255, 255);
+}
+.form-label {
+    font-size: 10px;
+    font-weight: bold;
+}
+.row {
+    margin-top: 0;
 }

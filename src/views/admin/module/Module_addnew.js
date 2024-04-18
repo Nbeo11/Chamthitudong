@@ -4,7 +4,6 @@ import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { createModule } from '../../../api/module';
 import '../../../assets/css/table.css';
-import './module.css';
 
 
 const Module_addnew = () => {
@@ -22,10 +21,12 @@ const Module_addnew = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleSave = () => {
-        const requiredFields = [modulecode, modulename, numofcredit];
+        const requiredFields = [modulecode, modulename, numofcredit, numofexam, numofpractice, numoftask, numoftheory];
         const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
 
-        if (allFieldsFilled && typeof compulsory === 'boolean') {
+        if (numofcredit == 0 || numofpractice ==0 || numofexam ==0 || numoftask ==0 || numoftheory ==0) {
+            setErrorMessage("Số tín chỉ và số tiết học phải lớn hơn 0.");
+        } else if (allFieldsFilled && typeof compulsory === 'boolean' && numofcredit!=0) {
             setModalIsOpen(true);
             setRequiredFieldsFilled(true);
             setErrorMessage('');
@@ -190,7 +191,7 @@ const Module_addnew = () => {
                                         <Col sm={8}>
                                             <Form.Control
                                                 as="textarea" // Use textarea element
-                                                rows={1} // Start with 1 row
+                                                rows={3} // Start with 1 row
                                                 placeholder="Ghi chú"
                                                 value={note}
                                                 onChange={e => setNote(e.target.value)}
@@ -232,7 +233,7 @@ const Module_addnew = () => {
                 <div>
                     <p>Bạn có muốn thêm học phần này không?</p>
                     <Button onClick={handleConfirm}>Xác nhận</Button>
-                    <Button onClick={handleCancel}>Hủy</Button>
+                    <Button className='back-button' onClick={handleCancel}>Hủy</Button>
                 </div>
             </Modal>
         </React.Fragment>

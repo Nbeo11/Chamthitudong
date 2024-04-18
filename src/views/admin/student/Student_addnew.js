@@ -1,20 +1,22 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from 'react-modal'; // Import thư viện react-modal
 import { getAllCourse } from '../../../api/course';
 import { getGradebyOlogyId } from '../../../api/grade';
-import { getOlogybyCourseId } from '../../../api/ology';
+import { getAllOlogy } from '../../../api/ology';
 import { createStudent } from '../../../api/student';
 
 const Grade_management = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false); // State để điều khiển việc hiển thị hộp thoại
     const [selectedCourseId, setSelectedCourseId] = useState('');
+    const [courses, setCourses] = useState([]);
     const [selectedOlogyId, setSelectedOlogyId] = useState('');
     const [ologies, setOlogies] = useState([]);
     const [selectedGradeId, setSelectedGradeId] = useState('');
+    const [grades, setGrades] = useState([]);
     const [username, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,49 +25,19 @@ const Grade_management = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [note, setNote] = useState('');
 
-    const [grades, setGrades] = useState([]);
-
-    const [courses, setCourses] = useState([]);
-
 
     const handleSave = () => {
-        setModalIsOpen(true); // Mở hộp thoại khi người dùng nhấn "Ghi nhận"
-    };
+        const requiredFields = [selectedCourseId, selectedOlogyId, selectedGradeId, username, email, password, birth, gender];
+        const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
 
-    useEffect(() => {
-        if (selectedCourseId) {
-            fetchOlogies(selectedCourseId);
-        }
-    }, [selectedCourseId]);
-
-    useEffect(() => {
-        if (selectedOlogyId) {
-            fetchGrades(selectedOlogyId);
-        }
-    }, [selectedOlogyId]);
-
-
-    const fetchOlogies = async (courseId) => {
-        try {
-            const response = await getOlogybyCourseId(courseId);
-            setOlogies(response);
-            setSelectedOlogyId(''); // Reset selectedOlogyId to null when selecting a new course
-            setSelectedGradeId('');
-        } catch (error) {
-            console.error('Error fetching ologies:', error);
+        if (allFieldsFilled) {
+            setModalIsOpen(true);
+            setRequiredFieldsFilled(true);
+            setErrorMessage('');
+        } else {
+            setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
         }
     };
-
-    const fetchGrades = async (ologyId) => {
-        try {
-            const response = await getGradebyOlogyId(ologyId);
-            setGrades(response);
-            setSelectedGradeId('');
-        } catch (error) {
-            console.error('Error fetching grades:', error);
-        }
-    };
-
 
     const handleConfirm = async () => {
         const data = {
@@ -120,7 +92,7 @@ const Grade_management = () => {
 
                                 {selectedCourseId && (
                                     <Col xs={4}>
-                                        <Form.Select id="ology" onClick={() => getOlogybyCourseId(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
+                                        <Form.Select id="ology" onClick={() => getAllOlogy(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
                                             <option value="">Chọn ngành học</option>
                                             {ologies && ologies.map(ology => (
                                                 <option key={ology._id} value={ology._id}>{ology.ologyname}</option>

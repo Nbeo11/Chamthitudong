@@ -7,7 +7,7 @@ import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { getAllCourse } from '../../../api/course';
 import { getGradebyOlogyId } from '../../../api/grade';
-import { getOlogybyCourseId } from '../../../api/ology';
+import { getAllOlogy } from '../../../api/ology';
 import { deleteStudent, getStudentbyGradeId, updateStudent } from '../../../api/student';
 
 
@@ -49,7 +49,7 @@ const Student_management = () => {
 
     const fetchOlogies = async (courseId) => {
         try {
-            const response = await getOlogybyCourseId(courseId);
+            const response = await getAllOlogy(courseId);
             setOlogies(response);
             setSelectedOlogyId(''); // Reset selectedOlogyId to null when selecting a new course
             setSelectedGradeId('');
@@ -187,7 +187,7 @@ const Student_management = () => {
 
                                 {selectedCourseId && (
                                     <Col xs={4}>
-                                        <Form.Select id="ology" onClick={() => getOlogybyCourseId(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
+                                        <Form.Select id="ology" onClick={() => getAllOlogy(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
                                             <option value="">Chọn ngành học</option>
                                             {ologies && ologies.map(ology => (
                                                 <option key={ology._id} value={ology._id}>{ology.ologyname}</option>

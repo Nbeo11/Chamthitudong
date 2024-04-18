@@ -7,19 +7,29 @@ import { createDifficult } from '../../../api/difficult';
 
 
 const Difficulty_category_addnew = () => {
-    const [questionName, setQuestionName] = useState('');
-    const [description, setDescription] = useState('');
+    const [difficulttype, setDifficulttype] = useState('');
+    const [difficultdescription, setDifficultdescription] = useState('');
     const [modalIsOpen, setModalIsOpen] = useState(false); // State để điều khiển việc hiển thị hộp thoại
-
+    const [requiredFieldsFilled, setRequiredFieldsFilled] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSave = () => {
-        setModalIsOpen(true); // Mở hộp thoại khi người dùng nhấn "Ghi nhận"
+        const requiredFields = [difficulttype, difficultdescription];
+        const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
+
+        if (allFieldsFilled) {
+            setModalIsOpen(true);
+            setRequiredFieldsFilled(true);
+            setErrorMessage('');
+        } else {
+            setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
+        }
     };
 
-    const handleConfirm = async() => {
+    const handleConfirm = async () => {
         const data = {
-            difficulttype: questionName,
-            difficultdescription: description
+            difficulttype: difficulttype,
+            difficultdescription: difficultdescription
         };
 
         try {
@@ -32,7 +42,7 @@ const Difficulty_category_addnew = () => {
             setModalIsOpen(false); // Đóng hộp thoại nếu gặp lỗi khi gọi API
         }
 
-        
+
     };
 
     const handleCancel = () => {
@@ -49,25 +59,48 @@ const Difficulty_category_addnew = () => {
                         </Card.Header>
                         <Card.Body>
                             <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                        <Form.Label>Tên loại câu hỏi: </Form.Label>
-                                        <Form.Control type="email" placeholder="Text" value={questionName} onChange={e => setQuestionName(e.target.value)} />
+                                <Col md={6} sm={10}>
+                                    <Form.Group as={Row} className="mb-3" controlId="difficulttype">
+                                        <Form.Label column md={4} sm={4}>Tên loại câu hỏi: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Tên loại câu hỏi"
+                                                value={difficulttype}
+                                                onChange={e => setDifficulttype(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                                        <Form.Label>Mô tả:</Form.Label>
-                                        <Form.Control as="textarea" rows="3" value={description} onChange={e => setDescription(e.target.value)}/>
+                                    <Form.Group as={Row} className="mb-3" controlId="difficultdescription">
+                                        <Form.Label column md={4} sm={4}>Mô tả: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                as="textarea"
+                                                placeholder='Mô tả'
+                                                rows="3"
+                                                value={difficultdescription}
+                                                onChange={e => setDifficultdescription(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
                                     </Form.Group>
-                                    <Button variant="primary" onClick={handleSave}>Submit</Button>
-                                    <Button variant="primary" onClick={() => window.history.back()}>Quay lại</Button> {/* Nút quay lại */}
+                                    <Col md={12} className="d-flex align-items-center">
+                                        <Col md={4} sm={4}>
+                                        </Col>
+                                        <Col md={7}>
+                                            {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
+                                            <Button variant="primary" onClick={handleSave}>Ghi dữ liệu</Button>
+                                            <Button variant="primary" className='back-button' onClick={() => window.history.back()}>Quay lại</Button>
+                                        </Col>
+                                    </Col>
                                 </Col>
+
                             </Row>
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
             <Modal
-                isOpen={modalIsOpen}
+                isOpen={modalIsOpen && requiredFieldsFilled}
                 onRequestClose={() => setModalIsOpen(false)}
                 style={{
                     content: {
@@ -77,16 +110,22 @@ const Difficulty_category_addnew = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%', // Đặt kích thước của hộp thoại ở đây
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
-                <h2>Xác nhận thêm mới loại câu hỏi</h2>
+                <h4>Xác nhận thêm loại câu hỏi mới</h4>
                 <div>
                     <p>Bạn có muốn thêm loại câu hỏi này không?</p>
                     <Button onClick={handleConfirm}>Xác nhận</Button>
-                    <Button onClick={handleCancel}>Hủy</Button>
+                    <Button className='back-button' onClick={handleCancel}>Hủy</Button>
                 </div>
             </Modal>
         </React.Fragment>

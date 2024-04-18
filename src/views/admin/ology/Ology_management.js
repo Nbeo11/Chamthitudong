@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
-import { deleteOlogy, getOlogybyCourseId, updateOlogy } from '../../../api/ology';
+import { deleteOlogy, getAllOlogy, updateOlogy } from '../../../api/ology';
+import '../../../assets/css/table.css';
+
 const Ology_management = () => {
     const [ologies, setOlogies] = useState([]);
     const [selectedOlogyId, setSelectedOlogyId] = useState(null);
@@ -13,17 +15,16 @@ const Ology_management = () => {
     const [newOlogyCode, setNewOlogyCode] = useState('');
     const [newOlogyShort, setNewOlogyShort] = useState('');
     const [newOlogyDescription, setNewOlogyDescription] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
 
     useEffect(() => {
-        const savedCourseId = localStorage.getItem('selectedCourseId');
         const fetchData = async () => {
             try {
-                const response = await getOlogybyCourseId(savedCourseId);
-                console.log("Courses:", response);
+                const response = await getAllOlogy();
                 setOlogies(response);
             } catch (error) {
-                console.error('Error fetching courses:', error);
+                console.error('Error fetching ologies:', error);
             }
         };
 
@@ -32,10 +33,9 @@ const Ology_management = () => {
 
     const handleDelete = async () => {
         try {
-            const savedCourseId = localStorage.getItem('selectedCourseId');
             await deleteOlogy(selectedOlogyId)
             setModalIsOpen(false); // Đóng hộp thoại sau khi xóa thành công
-            setOlogies(await getOlogybyCourseId(savedCourseId));
+            setOlogies(await getAllOlogy());
         } catch (error) {
             console.error('Error deleting ology:', error);
         }
@@ -43,6 +43,7 @@ const Ology_management = () => {
 
     const openDeleteModal = (id) => {
         setSelectedOlogyId(id);
+        openEditModal(false);
         setModalIsOpen(true);
     };
 
@@ -57,17 +58,25 @@ const Ology_management = () => {
 
     const handleEdit = async () => {
         try {
-            const savedCourseId = localStorage.getItem('selectedCourseId');
             const data = {
-                courseId: localStorage.getItem('selectedCourseId'),
                 ologycode: newOlogyCode,
                 ologyname: newOlogyName,
                 ologyshort: newOlogyShort,
                 ologydescription: newOlogyDescription
             };
+            const requiredFields = [newOlogyCode, newOlogyName, newOlogyShort, newOlogyDescription];
+            const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
+
+            if (allFieldsFilled) {
+                setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
+                setErrorMessage('');
+            } else {
+                setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
+            }
+
             await updateOlogy(editingOlogy._id, data)
             setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
-            setOlogies(await getOlogybyCourseId(savedCourseId));
+            setOlogies(await getAllOlogy());
         } catch (error) {
             console.error('Error editing ology:', error);
         }
@@ -80,14 +89,14 @@ const Ology_management = () => {
             <Row>
                 <Col>
                     <Card>
-                        <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
+                        <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Quản lý chuyên ngành</Card.Title>
                             <Link to="/admin/app/ology/ology_addnew">
-                                <Button variant="primary">Thêm mới</Button>
+                                <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
                         <Card.Body>
-                            <Table responsive hover>
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
@@ -99,12 +108,12 @@ const Ology_management = () => {
                                 <tbody>
                                     {ologies.map((ology, index) => (
                                         <tr key={ology._id}>
-                                            <th scope="row">{index + 1}</th>
-                                            <td>{ology.ologyname}</td>
-                                            <td>{ology.ologydescription}</td>
-                                            <td>
-                                                <Button onClick={() => openEditModal(ology)}>Sửa</Button>
-                                                <Button onClick={() => openDeleteModal(ology._id)}>Xóa</Button>
+                                            <th scope="row" className="center-column">{index + 1}</th>
+                                            <td className="center-column">{ology.ologyname}</td>
+                                            <td className="center-column">{ology.ologydescription}</td>
+                                            <td className="center-column">
+                                                <Button className="edit-button" onClick={() => openEditModal(ology)}>Sửa</Button>
+                                                <Button className="delete-button" onClick={() => openDeleteModal(ology._id)}>Xóa</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -125,42 +134,78 @@ const Ology_management = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
                 {editingOlogy ? (
                     <div>
-                        <h2>Chỉnh sửa mục </h2>
+                        <h4>Chỉnh sửa mục </h4>
                         <div>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newOlogyCode">Mã chuyên ngành</Form.Label>
-                                <Form.Control type="text" id="newOlogyCode" value={newOlogyCode} onChange={(e) => setNewOlogyCode(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newOlogyName">Tên chuyên ngành</Form.Label>
-                                <Form.Control type="text" id="newOlogyName" value={newOlogyName} onChange={(e) => setNewOlogyName(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newOlogyShort">Tên viết tắt</Form.Label>
-                                <Form.Control type="text" id="newOlogyShort" value={newOlogyShort} onChange={(e) => setNewOlogyShort(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newOlogyDescription">Mô tả</Form.Label>
-                                <Form.Control type="text" id="newOlogyDescription" value={newOlogyDescription} onChange={(e) => setNewOlogyDescription(e.target.value)} />
-                            </Form.Group>
-                            <Button onClick={handleEdit}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Row>
+                                <Col md={10} sm ={12}>
+                                    <Form.Group as={Row} className="mb-3" controlId="newOlogyCode">
+                                        <Form.Label column md={5} sm={5}>Mã chuyên ngành</Form.Label>
+                                        <Col md={7} sm={7} className="d-flex align-items-center">
+                                        <Form.Control
+                                            type="text" id="newOlogyCode"
+                                            value={newOlogyCode}
+                                            onChange={(e) => setNewOlogyCode(e.target.value)} />
+                                        <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newOlogyName">
+                                        <Form.Label column md={5} sm={5}>Tên chuyên ngành</Form.Label>
+                                        <Col md={7} sm={7} className="d-flex align-items-center">
+                                        <Form.Control
+                                            type="text" id="newOlogyName"
+                                            value={newOlogyName}
+                                            onChange={(e) => setNewOlogyName(e.target.value)} />
+                                        <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newOlogyShort">
+                                        <Form.Label column md={5} sm={5}>Tên viết tắt</Form.Label>
+                                        <Col md={7} sm={7} className="d-flex align-items-center">
+                                        <Form.Control
+                                            type="text" id="newOlogyShort"
+                                            value={newOlogyShort}
+                                            onChange={(e) => setNewOlogyShort(e.target.value)} />
+                                        <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newOlogyDescription">
+                                        <Form.Label column md={5} sm={5}>Mô tả</Form.Label>
+                                        <Col md={7} sm={7} className="d-flex align-items-center">
+                                        <Form.Control
+                                            type="text" id="newOlogyDescription"
+                                            value={newOlogyDescription}
+                                            onChange={(e) => setNewOlogyDescription(e.target.value)} />
+                                        <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    
+                                    {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
+                                    <Button onClick={handleEdit}>Xác nhận</Button>
+                                    <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <h2>Xác nhận xóa mục </h2>
+                        <h4>Xác nhận xóa mục </h4>
                         <div>
                             <p>Bạn có chắc chắn muốn xóa mục này không?</p>
-                            <Button onClick={handleDelete}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Button onClick={handleDelete} >Xác nhận</Button>
+                            <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 )}

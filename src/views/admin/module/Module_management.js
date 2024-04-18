@@ -5,7 +5,6 @@ import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { deleteModule, getAllModule, updateModule } from '../../../api/module';
 import '../../../assets/css/table.css';
-import './module.css';
 
 const Module_management = () => {
     const [modules, setModules] = useState([]);

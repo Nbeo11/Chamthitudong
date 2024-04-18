@@ -3,52 +3,55 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
-import { getCoursedetails } from '../../../api/course';
+import { getAllCourse } from '../../../api/course';
 import { deleteGrade, getAllGrade, updateGrade } from '../../../api/grade';
-import { getOlogydetails } from '../../../api/ology';
+import { getAllOlogy } from '../../../api/ology';
+import '../../../assets/css/table.css';
 
 const Grade_management = () => {
     const [grades, setGrades] = useState([]);
     const [selectedGradeId, setSelectedGradeId] = useState(null);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [editingGrade, setEditingGrade] = useState(null);
-    const [newGradeName, setNewGradeName] = useState('');
     const [newGradeCode, setNewGradeCode] = useState('');
+    const [newGradeName, setNewGradeName] = useState('');
     const [newGradeDescription, setNewGradeDescription] = useState('');
+    const [newOlogies, setNewOlogies] = useState('');
+    const [newCourses, setNewCourses] = useState('');
+    const [ologies, setOlogies] = useState([]);
+    const [courses, setCourses] = useState([]);
+    const [selectedCourseId, setSelectedCourseId] = useState('');
+    const [selectedOlogyId, setSelectedOlogyId] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // const response = await getAllGrade(saveOlogyId);
                 const response = await getAllGrade();
-                const gradesWithDetails = await Promise.all(
-                    response.map(async (grade) => {
-                        const courseDetails = await getCoursedetails(grade.courseId);
-                        const ologyDetails = await getOlogydetails(grade.ologyId);
-                        return { ...grade, coursename: courseDetails.coursename, ologyname: ologyDetails.ologyname };
-                    })
-                );
-                setGrades(gradesWithDetails);
+                setGrades(response);
             } catch (error) {
-                console.error('Error fetching courses:', error);
+                console.error('Error fetching grades:', error);
             }
         };
 
         fetchData();
     }, []);
 
+
     const handleDelete = async () => {
         try {
-            await deleteGrade(selectedGradeId)
+            // Gọi hàm deletegrade với tham số _id để xóa grade
+            await deleteGrade(selectedGradeId);
             setModalIsOpen(false); // Đóng hộp thoại sau khi xóa thành công
             setGrades(await getAllGrade());
         } catch (error) {
-            console.error('Error deleting ology:', error);
+            console.error('Error deleting grade:', error);
         }
     };
 
     const openDeleteModal = (id) => {
         setSelectedGradeId(id);
+        openEditModal(false);
         setModalIsOpen(true);
     };
 
@@ -57,18 +60,36 @@ const Grade_management = () => {
         setNewGradeCode(grade.gradecode);
         setNewGradeName(grade.gradename);
         setNewGradeDescription(grade.gradedescription);
+        setNewCourses(grade.courseName);
+        setNewOlogies(grade.ologyName);
         setModalIsOpen(true);
+        console.log ('newCourses: ', newCourses)
     };
 
     const handleEdit = async () => {
         try {
+            // Đảm bảo rằng cả hai trường gradetype và gradedescription được truyền vào hàm updatedelete
             const data = {
                 gradecode: newGradeCode,
                 gradename: newGradeName,
-                gradedescription: newGradeDescription
+                gradedescription: newGradeDescription,
+                courseName: selectedCourseId,
+                ologyName: selectedOlogyId,
+
             };
-            await updateGrade(editingGrade._id, data)
-            setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
+            const requiredFields = [newGradeCode, newGradeName, newCourses, newOlogies];
+            const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
+
+            if (allFieldsFilled) {
+                setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
+                setErrorMessage('');
+            } else {
+                setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
+            }
+            console.log('errorMessage', errorMessage)
+            await updateGrade(editingGrade._id, data);
+
+            // Cập nhật danh sách độ khó sau khi sửa
             setGrades(await getAllGrade());
         } catch (error) {
             console.error('Error editing grade:', error);
@@ -76,43 +97,43 @@ const Grade_management = () => {
     };
 
 
+
+
     return (
         <React.Fragment>
             <Row>
                 <Col>
                     <Card>
-                        <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
-                            <Card.Title as="h5">Quản lý lớp học</Card.Title>
+                        <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
+                            <Card.Title as="h5">Danh sách lớp học</Card.Title>
                             <Link to="/admin/app/grade/grade_addnew">
-                                <Button variant="primary">Thêm mới</Button>
+                                <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
                         <Card.Body>
-                            <Table responsive hover>
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th>Tên chuyên ngành</th>
+                                        <th>Chuyên ngành</th>
                                         <th>Tên lớp</th>
                                         <th>Ghi chú</th>
                                         <th>Khóa học</th>
-                                        <th>Hành động</th>
+                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {grades.map((grade, index) => (
+                                    {grades && grades.map((grade, index) => (
                                         <tr key={grade._id}>
-                                            <th scope="row">{index + 1}</th>
-                                            <td>{grade.gradename}</td>
-                                            <td>{grade.gradename}</td>
-                                            <td>{grade.gradedescription}</td>
-                                            <td>{grade.coursename}</td>
-
-                                            <td>
-                                                <Button onClick={() => openEditModal(grade)}>Sửa</Button>
-                                                <Button onClick={() => openDeleteModal(grade._id)}>Xóa</Button>
+                                            <th scope="row" className="center-column">{index + 1}</th>
+                                            <td className="center-column">{grade.ologyName}</td>
+                                            <td className="center-column">{grade.gradename}</td>
+                                            <td className="center-column">{grade.gradedescription}</td>
+                                            <td className="center-column">{grade.courseName}</td>
+                                            <td className="center-column">
+                                                <Button className="edit-button" onClick={() => openEditModal(grade)}>Sửa</Button>
+                                                <Button className="delete-button" onClick={() => openDeleteModal(grade._id)}>Xóa</Button>
                                             </td>
-
                                         </tr>
                                     ))}
                                 </tbody>
@@ -132,39 +153,102 @@ const Grade_management = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
                 {editingGrade ? (
                     <div>
-                        <h2>Chỉnh sửa mục </h2>
+                        <h4>Chỉnh sửa lớp học</h4>
                         <div>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newGradeCode">Mã chuyên ngành</Form.Label>
-                                <Form.Control type="text" id="newGradeCode" value={newGradeCode} onChange={(e) => setNewGradeCode(e.target.value)} />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newGradeName">Tên chuyên ngành</Form.Label>
-                                <Form.Control type="text" id="newGradeName" value={newGradeName} onChange={(e) => setNewGradeName(e.target.value)} />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                <Form.Label htmlFor="newGradeDescription">Mô tả</Form.Label>
-                                <Form.Control type="text" id="newGradeDescription" value={newGradeDescription} onChange={(e) => setNewGradeDescription(e.target.value)} />
-                            </Form.Group>
-                            <Button onClick={handleEdit}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Row>
+                                <Col md={10}>
+                                    <Form.Group as={Row} className="mb-3" controlId="courseName">
+                                        <Form.Label column md={4} sm={4}>Khóa học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Select
+                                                id="course"
+                                                style={{ fontSize: '10px', borderColor: 'black' }}
+                                                onClick={() => getAllCourse().then(response => setCourses(response))}
+                                                onChange={(e) => setSelectedCourseId(e.target.value)}>
+                                                <option value=""> {newCourses}</option>
+                                                {courses && courses.map(course => (
+                                                    <option key={course._id} value={course._id}>{course.coursename}</option>
+                                                ))}
+                                            </Form.Select>
+                                            <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="ologyName">
+                                        <Form.Label column md={4} sm={4}>Chuyên ngành: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Select
+                                                id="ology"
+                                                style={{ fontSize: '10px', borderColor: 'black' }}
+                                                onClick={() => getAllOlogy().then(response => setOlogies(response))}
+                                                onChange={(e) => setSelectedOlogyId(e.target.value)}>
+                                                <option value=""> {newOlogies}</option>
+                                                {ologies && ologies.map(ology => (
+                                                    <option key={ology._id} value={ology._id}>{ology.ologyname}</option>
+                                                ))}
+                                            </Form.Select>
+                                            <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newGradeCode">
+                                        <Form.Label column md={4} sm={4}>Mã lớp học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Mã lớp học"
+                                                value={newGradeCode}
+                                                onChange={e => setNewGradeCode(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newGradeName">
+                                        <Form.Label column md={4} sm={4}>Tên lớp học: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Mã lớp học"
+                                                value={newGradeName}
+                                                onChange={e => setNewGradeName(e.target.value)} />
+                                            <span className="text-danger">*</span>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group as={Row} className="mb-3" controlId="newGradeDescription">
+                                        <Form.Label column md={4} sm={4}>Mô tả: </Form.Label>
+                                        <Col md={8} sm={8} className="d-flex align-items-center">
+                                            <Form.Control
+                                                as="textarea"
+                                                placeholder='Mô tả'
+                                                rows="3"
+                                                value={newGradeDescription}
+                                                onChange={e => setNewGradeDescription(e.target.value)} />
+                                        </Col>
+                                    </Form.Group>
+                                    {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
+                                    <Button onClick={handleEdit}>Xác nhận</Button>
+                                    <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
                 ) : (
                     <div>
-                        <h2>Xác nhận xóa mục </h2>
+                        <h4>Xác nhận xóa mục </h4>
                         <div>
                             <p>Bạn có chắc chắn muốn xóa mục này không?</p>
-                            <Button onClick={handleDelete}>Xác nhận</Button>
-                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
+                            <Button onClick={handleDelete} >Xác nhận</Button>
+                            <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 )}
