@@ -30,7 +30,7 @@ const menuItems = {
               title: 'Quản lý cấu trúc đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/teaching-group'
+              url: '/admin/app/teaching_group'
             }
           ]
         },

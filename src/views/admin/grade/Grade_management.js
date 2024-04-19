@@ -63,7 +63,7 @@ const Grade_management = () => {
         setNewCourses(grade.courseName);
         setNewOlogies(grade.ologyName);
         setModalIsOpen(true);
-        console.log ('newCourses: ', newCourses)
+        console.log('newCourses: ', newCourses)
     };
 
     const handleEdit = async () => {
@@ -174,6 +174,7 @@ const Grade_management = () => {
                                         <Form.Label column md={4} sm={4}>Khóa học: </Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
                                             <Form.Select
+                                                className='form-select'
                                                 id="course"
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
                                                 onClick={() => getAllCourse().then(response => setCourses(response))}
@@ -190,6 +191,7 @@ const Grade_management = () => {
                                         <Form.Label column md={4} sm={4}>Chuyên ngành: </Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
                                             <Form.Select
+                                                className='form-select'
                                                 id="ology"
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
                                                 onClick={() => getAllOlogy().then(response => setOlogies(response))}

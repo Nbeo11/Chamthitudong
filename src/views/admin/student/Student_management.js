@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { getAllCourse } from '../../../api/course';
 import { getGradebyOlogyId } from '../../../api/grade';
 import { getAllOlogy } from '../../../api/ology';
-import { deleteStudent, getStudentbyGradeId, updateStudent } from '../../../api/student';
+import { deleteStudent, getAllStudent, getStudentbyGradeId, updateStudent } from '../../../api/student';
 
 
 const Student_management = () => {
@@ -18,6 +18,7 @@ const Student_management = () => {
     const [editingStudent, setEditingStudent] = useState(null);
     const [newUserName, setNewUserName] = useState('');
     const [newEmail, setNewEmail] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const [newBirth, setNewBirth] = useState('');
     const [newGender, setNewGender] = useState('');
     const [newPhoneNumber, setNewPhoneNumber] = useState('');
@@ -46,6 +47,20 @@ const Student_management = () => {
         }
     }, [selectedOlogyId]);
 
+    useEffect(() => {
+        if (!selectedGradeId) {
+            const fetchData = async () => {
+                try {
+                    const response = await getAllStudent();
+                    setStudents(response);
+                } catch (error) {
+                    console.error('Error fetching Student:', error);
+                }
+            };
+            fetchData();
+        }
+
+    }, []);
 
     const fetchOlogies = async (courseId) => {
         try {
@@ -78,6 +93,15 @@ const Student_management = () => {
         }
     };
 
+    const fetchAllStudents = async () => {
+        try {
+            const response = await getAllStudent();
+            setStudents(response);
+            console.log("oke", response);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    };
 
     const handleDelete = async () => {
         try {
@@ -94,6 +118,7 @@ const Student_management = () => {
 
     const openDeleteModal = (id) => {
         setSelectedStudentId(id);
+        openEditModal(false);
         setModalIsOpen(true);
     };
 
@@ -101,18 +126,26 @@ const Student_management = () => {
         setEditingStudent(student);
         setNewUserName(student.username);
         setNewEmail(student.email);
+        setNewPassword(student.password);
         setNewBirth(student.birth);
         setNewGender(student.gender);
         setNewPhoneNumber(student.phoneNumber);
         setNewNote(student.note);
         setModalIsOpen(true);
     };
+    // Define a function to extract student code from email
+    const extractStudentCode = (email) => {
+        const atIndex = email.indexOf('@'); // Find the index of '@' symbol
+        return email.substring(0, atIndex); // Extract the substring before '@'
+    };
+
 
     const handleEdit = async () => {
         try {
             const data = {
                 username: newUserName,
                 email: newEmail,
+                password: newPassword,
                 birth: newBirth,
                 gender: newGender,
                 phoneNumber: newPhoneNumber,
@@ -120,7 +153,11 @@ const Student_management = () => {
             };
             await updateStudent(editingStudent._id, data)
             setModalIsOpen(false);
-            fetchStudents(selectedGradeId); // Update student list after successful edit
+            if (selectedGradeId) {
+                fetchStudents(selectedGradeId); // Update student list after successful edit
+            } else {
+                fetchAllStudents(); // Update student list after successful edit
+            }
         } catch (error) {
             console.error('Error editing student:', error);
         }
@@ -143,11 +180,9 @@ const Student_management = () => {
         }
     };
 
-    // Hàm để định dạng ngày từ một đối tượng Date thành chuỗi ngày-tháng-năm
     const formatDate = (date) => {
-        if (!date) return ""; // Trả về chuỗi rỗng nếu không có ngày được cung cấp
+        if (!date) return "";
         if (typeof date === 'string') {
-            // Kiểm tra nếu `date` là một chuỗi, thực hiện chuyển đổi thành đối tượng Date
             date = new Date(date);
         }
         if (!(date instanceof Date) || isNaN(date)) return ""; // Trả về chuỗi rỗng nếu không thể tạo đối tượng Date từ `date`
@@ -167,17 +202,22 @@ const Student_management = () => {
             <Row>
                 <Col>
                     <Card>
-                        <Card.Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center" }}>
+                        <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Quản lý sinh viên</Card.Title>
                             <Link to="/admin/app/student/student_addnew">
-                                <Button variant="primary">Thêm mới</Button>
+                                <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
                         <Card.Body>
                             <Row>
                                 <Col xs={4}>
                                     <Col></Col>
-                                    <Form.Select id="course" onClick={() => getAllCourse().then(response => setCourses(response))} onChange={(e) => setSelectedCourseId(e.target.value)}>
+                                    <Form.Select
+                                        className='form-select'
+                                        style={{ fontSize: '10px', borderColor: 'black' }}
+                                        id="course"
+                                        onClick={() => getAllCourse().then(response => setCourses(response))}
+                                        onChange={(e) => setSelectedCourseId(e.target.value)}>
                                         <option value=""> Chọn khóa học</option>
                                         {courses && courses.map(course => (
                                             <option key={course._id} value={course._id}>{course.coursename}</option>
@@ -187,7 +227,12 @@ const Student_management = () => {
 
                                 {selectedCourseId && (
                                     <Col xs={4}>
-                                        <Form.Select id="ology" onClick={() => getAllOlogy(selectedCourseId).then(response => setOlogies(response))} onChange={(e) => setSelectedOlogyId(e.target.value)}>
+                                        <Form.Select
+                                            className='form-select'
+                                            style={{ fontSize: '10px', borderColor: 'black' }}
+                                            id="ology"
+                                            onClick={() => getAllOlogy(selectedCourseId).then(response => setOlogies(response))}
+                                            onChange={(e) => setSelectedOlogyId(e.target.value)}>
                                             <option value="">Chọn ngành học</option>
                                             {ologies && ologies.map(ology => (
                                                 <option key={ology._id} value={ology._id}>{ology.ologyname}</option>
@@ -198,7 +243,12 @@ const Student_management = () => {
 
                                 {selectedCourseId && selectedOlogyId && (
                                     <Col xs={3}>
-                                        <Form.Select id="grade" onClick={() => getGradebyOlogyId(selectedOlogyId).then(response => setGrades(response))} onChange={(e) => setSelectedGradeId(e.target.value)}>
+                                        <Form.Select
+                                            className='form-select'
+                                            style={{ fontSize: '10px', borderColor: 'black' }}
+                                            id="grade"
+                                            onClick={() => getGradebyOlogyId(selectedOlogyId).then(response => setGrades(response))}
+                                            onChange={(e) => setSelectedGradeId(e.target.value)}>
                                             <option value="">Chọn lớp</option>
                                             {grades && grades.map(grade => (
                                                 <option key={grade._id} value={grade._id}>{grade.gradename}</option>
@@ -225,7 +275,7 @@ const Student_management = () => {
                                 </Col>
                             </Row>
 
-                            <Table responsive hover>
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
@@ -233,21 +283,21 @@ const Student_management = () => {
                                         <th>Họ và tên</th>
                                         <th>Ngày sinh</th>
                                         <th>Email</th>
-                                        <th>Thao tác</th>
+                                        <th className='action-button'>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {students && students.length > 0 ? (
                                         students.map((student, index) => (
                                             <tr key={student._id}>
-                                                <th scope="row">{index + 1}</th>
-                                                <td>{student.studenttype}</td>
+                                                <th scope="row" className="center-column">{index + 1}</th>
+                                                <td className="center-column">{extractStudentCode(student.email)}</td>
                                                 <td>{student.username}</td>
-                                                <td>{formatDate(student.birth)}</td>
-                                                <td>{student.email}</td>
-                                                <td>
-                                                    <Button onClick={() => openEditModal(student)}>Sửa</Button>
-                                                    <Button onClick={() => openDeleteModal(student._id)}>Xóa</Button>
+                                                <td className="center-column">{formatDate(student.birth)}</td>
+                                                <td className="center-column">{student.email}</td>
+                                                <td className="center-column">
+                                                    <Button className="edit-button" onClick={() => openEditModal(student)}>Sửa</Button>
+                                                    <Button className="delete-button" onClick={() => openDeleteModal(student._id)}>Xóa</Button>
                                                 </td>
                                             </tr>
                                         ))
@@ -274,26 +324,36 @@ const Student_management = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        height: 'auto'
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >
                 {editingStudent ? (
                     <div>
-                        <h2>Chỉnh sửa mục</h2>
+                        <h4>Chỉnh sửa thông tin</h4>
                         <div>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label htmlFor="newUserName">Tên sinh viên</Form.Label>
-                                <Form.Control type="text" id="newUserName" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                                <Form.Control type="text" placeholder='Nhập họ và tên' id="newUserName" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label htmlFor="newEmail">Địa chỉ Email</Form.Label>
-                                <Form.Control type="text" id="newEmail" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                                <Form.Control type="text" placeholder='Nhập địa chỉ email' id="newEmail" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newEmail">Mật khẩu</Form.Label>
+                                <Form.Control type="text" placeholder='Nhập mật khẩu' id="newEmail" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label htmlFor="newBirth">Ngày sinh</Form.Label>
-                                <div className="input-group">
+                                <div className="input-group" style={{ background: 'none' }}>
                                     <DatePicker
                                         id="newBirth"
                                         selected={newBirth}
@@ -329,25 +389,16 @@ const Student_management = () => {
                                         checked={newGender === 'female'}
                                         onChange={() => setNewGender('female')}
                                     />
-                                    <Form.Check
-                                        inline
-                                        type="radio"
-                                        id="other"
-                                        label="Khác"
-                                        name="gender"
-                                        checked={newGender === 'other'}
-                                        onChange={() => setNewGender('other')}
-                                    />
                                 </div>
                             </Form.Group>
 
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label htmlFor="newPhoneNumber">Số điện thoại</Form.Label>
-                                <Form.Control type="text" id="newPhoneNumber" value={newPhoneNumber} onChange={(e) => setNewPhoneNumber(e.target.value)} />
+                                <Form.Control type="text" placeholder='Nhập số điện thoại' id="newPhoneNumber" value={newPhoneNumber} onChange={(e) => setNewPhoneNumber(e.target.value)} />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label htmlFor="newNote">Ghi chú</Form.Label>
-                                <Form.Control type="text" id="newNote" value={newNote} onChange={(e) => setNewNote(e.target.value)} />
+                                <Form.Control type="text" placeholder='Ghi chú' id="newNote" value={newNote} onChange={(e) => setNewNote(e.target.value)} />
                             </Form.Group>
 
                             <Button onClick={handleEdit}>Xác nhận</Button>

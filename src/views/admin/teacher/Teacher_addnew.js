@@ -4,20 +4,11 @@ import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from 'react-modal'; // Import thư viện react-modal
-import { getAllCourse } from '../../../api/course';
-import { getAllbyCourseandOlogyId } from '../../../api/grade';
-import { getAllOlogy } from '../../../api/ology';
-import { createStudent } from '../../../api/student';
+import { createTeacher } from '../../../api/teacher';
 import '../../../assets/css/table.css';
 
-const Grade_management = () => {
+const Teacher_addnew = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false); // State để điều khiển việc hiển thị hộp thoại
-    const [selectedCourseId, setSelectedCourseId] = useState('');
-    const [courses, setCourses] = useState([]);
-    const [selectedOlogyId, setSelectedOlogyId] = useState('');
-    const [ologies, setOlogies] = useState([]);
-    const [selectedGradeId, setSelectedGradeId] = useState('');
-    const [grades, setGrades] = useState([]);
     const [username, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -34,7 +25,7 @@ const Grade_management = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
-    
+
     const isValidPhoneNumber = (phoneNumber) => {
         // Biểu thức chính quy để kiểm tra định dạng số điện thoại
         const phoneRegex = /^\d{10,11}$/;
@@ -42,7 +33,7 @@ const Grade_management = () => {
     };
 
     const handleSave = () => {
-        const requiredFields = [selectedCourseId, selectedOlogyId, selectedGradeId, username, email, password];
+        const requiredFields = [username, email, password];
         const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
 
         if (allFieldsFilled && isValidEmail(email) && isValidPhoneNumber(phoneNumber)) {
@@ -50,9 +41,9 @@ const Grade_management = () => {
             setRequiredFieldsFilled(true);
             setErrorMessage('');
         } else {
-            if (!isValidEmail(email) && email!=='') {
+            if (!isValidEmail(email) && email !== '') {
                 setErrorMessage("Địa chỉ email không hợp lệ.");
-            } else if (!isValidPhoneNumber(phoneNumber) && phoneNumber!=='') {
+            } else if (!isValidPhoneNumber(phoneNumber) && phoneNumber !== '') {
                 setErrorMessage("Số điện thoại không hợp lệ. Số điện thoại phải có 10 hoặc 11 chữ số.");
             } else {
                 setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
@@ -62,9 +53,6 @@ const Grade_management = () => {
 
     const handleConfirm = async () => {
         const data = {
-            courseId: selectedCourseId,
-            ologyId: selectedOlogyId,
-            gradeId: selectedGradeId,
             username: username,
             email: email,
             password: password,
@@ -75,10 +63,10 @@ const Grade_management = () => {
         };
 
         try {
-            const response = await createStudent(data);
+            const response = await createTeacher(data);
             console.log('API Response:', response);
             setModalIsOpen(false); // Đóng hộp thoại sau khi gọi API thành công
-            window.location.href = '/admin/app/student';
+            window.location.href = '/admin/app/teacher';
         } catch (error) {
             console.error('API Error:', error);
             setModalIsOpen(false); // Đóng hộp thoại nếu gặp lỗi khi gọi API
@@ -97,75 +85,13 @@ const Grade_management = () => {
                 <Col>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Thêm mới Sinh viên</Card.Title>
+                            <Card.Title as="h5">Thêm mới giảng viên</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <Row>
-                                <Col md={4} sm={8}>
-                                    <Form.Group as={Row} className="mb-3" controlId="courseName">
-                                        <Form.Label column md={4} sm={4}>Khóa học: </Form.Label>
-                                        <Col md={7} sm={8} className="d-flex align-items-center">
-                                            <Form.Select
-                                                className='form-select'
-                                                id="course"
-                                                style={{ fontSize: '10px', borderColor: 'black' }}
-                                                onClick={() => getAllCourse().then(response => setCourses(response))}
-                                                onChange={(e) => setSelectedCourseId(e.target.value)}>
-                                                <option value=""> Chọn khóa học</option>
-                                                {courses && courses.map(course => (
-                                                    <option key={course._id} value={course._id}>{course.coursename}</option>
-                                                ))}
-                                            </Form.Select>
-                                            <span className="text-danger">*</span>
-                                        </Col>
-                                    </Form.Group>
-                                </Col>
-                                <Col md={5} sm={8}>
-                                    {selectedCourseId && (
-                                        <Form.Group as={Row} className="mb-3" controlId="ologyName">
-                                            <Form.Label column md={4} sm={4}>Chuyên ngành: </Form.Label>
-                                            <Col md={7} sm={8} className="d-flex align-items-center">
-                                                <Form.Select
-                                                    className='form-select'
-                                                    id="ology"
-                                                    style={{ fontSize: '10px', borderColor: 'black' }}
-                                                    onClick={() => getAllOlogy().then(response => setOlogies(response))}
-                                                    onChange={(e) => setSelectedOlogyId(e.target.value)}>
-                                                    <option value=""> Chọn ngành học</option>
-                                                    {ologies && ologies.map(ology => (
-                                                        <option key={ology._id} value={ology._id}>{ology.ologyname}</option>
-                                                    ))}
-                                                </Form.Select>
-                                                <span className="text-danger">*</span>
-                                            </Col>
-                                        </Form.Group>
-                                    )}
-                                </Col>
-
-                                {selectedCourseId && selectedOlogyId && (
-                                    <Col md={3} sm={8}>
-                                        <Form.Group as={Row} className="mb-3" controlId="gradeName">
-                                            <Form.Label column md={4} sm={4}>Lớp: </Form.Label>
-                                            <Col md={8} sm={8} className="d-flex align-items-center">
-                                                <Form.Select
-                                                    className='form-select'
-                                                    id="grade"
-                                                    style={{ fontSize: '10px', borderColor: 'black' }}
-                                                    onClick={() => getAllbyCourseandOlogyId(selectedCourseId, selectedOlogyId).then(response => setGrades(response))}
-                                                    onChange={(e) => setSelectedGradeId(e.target.value)}>
-                                                    <option value=""> Chọn lớp</option>
-                                                    {grades && grades.map(grade => (
-                                                        <option key={grade._id} value={grade._id}>{grade.gradename}</option>
-                                                    ))}
-                                                </Form.Select>
-                                                <span className="text-danger">*</span>
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
-                                )}
                                 <Col md={8} sm={8}>
                                     <Form.Group as={Row} className="mb-3" controlId="username">
-                                        <Form.Label column md={2} sm={4}>Tên sinh viên: </Form.Label>
+                                        <Form.Label column md={2} sm={4}>Tên giảng viên: </Form.Label>
                                         <Col md={4} sm={8} className="d-flex align-items-center">
                                             <Form.Control
                                                 type="text"
@@ -186,7 +112,7 @@ const Grade_management = () => {
                                                 placeholder="Nhập địa chỉ email"
                                                 value={email}
                                                 onChange={e => setEmail(e.target.value)} />
-                                                <span className="text-danger">*</span>
+                                            <span className="text-danger">*</span>
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -200,7 +126,7 @@ const Grade_management = () => {
                                                 placeholder="Nhập mật khẩu tài khoản"
                                                 value={password}
                                                 onChange={e => setPassword(e.target.value)} />
-                                                <span className="text-danger">*</span>
+                                            <span className="text-danger">*</span>
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -308,7 +234,7 @@ const Grade_management = () => {
                     }
                 }}
             >
-                <h4>Xác nhận thêm sinh viên mới</h4>
+                <h4>Xác nhận thêm giảng viên mới</h4>
                 <div>
                     <p>Bạn có muốn thêm học phần này không?</p>
                     <Button onClick={handleConfirm}>Xác nhận</Button>
@@ -319,4 +245,4 @@ const Grade_management = () => {
     );
 };
 
-export default Grade_management;
+export default Teacher_addnew;

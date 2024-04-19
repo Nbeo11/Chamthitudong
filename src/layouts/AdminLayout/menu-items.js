@@ -65,7 +65,7 @@ const menuItems = {
               title: 'Phân quyền nhóm giảng dạy',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/teaching-group'
+              url: '/admin/app/teaching_group'
             },
             {
               id: 'badges',

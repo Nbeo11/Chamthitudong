@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { deleteTeacher, getAllTeacher, updateTeacher } from '../../../api/teacher';
@@ -18,7 +20,7 @@ const Teacher_management = () => {
     const [newGender, setNewGender] = useState('');
     const [newPhoneNumber, setNewPhoneNumber] = useState('');
     const [newNote, setNewNote] = useState('');
-
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -75,7 +77,7 @@ const Teacher_management = () => {
             };
             const requiredFields = [newUserName, newPassword];
             const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
-
+            
             if (allFieldsFilled) {
                 setModalIsOpen(false); // Đóng hộp thoại sau khi sửa thành công
                 setErrorMessage('');
@@ -83,8 +85,7 @@ const Teacher_management = () => {
                 setErrorMessage("Vui lòng điền đầy đủ các trường yêu cầu.");
             }
             console.log('errorMessage', errorMessage)
-            await updateTeacher(editingDifficulty._id, data);
-
+            await updateTeacher(editingTeacher._id, data);
             // Cập nhật danh sách độ khó sau khi sửa
             setTeachers(await getAllTeacher());
         } catch (error) {
@@ -93,7 +94,19 @@ const Teacher_management = () => {
     };
 
 
+    const formatDate = (date) => {
+        if (!date) return "";
+        if (typeof date === 'string') {
+            date = new Date(date);
+        }
+        if (!(date instanceof Date) || isNaN(date)) return ""; // Trả về chuỗi rỗng nếu không thể tạo đối tượng Date từ `date`
 
+        // Định dạng ngày thành chuỗi ngày-tháng-năm
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
 
 
     return (
@@ -103,12 +116,12 @@ const Teacher_management = () => {
                     <Card>
                         <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Quản lý giảng viên</Card.Title>
-                            <Link to="/admin/app/teachers/teacher_category_addnew">
+                            <Link to="/admin/app/teacher/teacher_addnew">
                                 <Button className='add-button'>Thêm mới</Button>
                             </Link>
                         </Card.Header>
                         <Card.Body>
-                        <Table responsive hover className="custom-table">
+                            <Table responsive hover className="custom-table">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
@@ -125,12 +138,12 @@ const Teacher_management = () => {
                                             <tr key={teacher._id}>
                                                 <th scope="row" className="center-column">{index + 1}</th>
                                                 <td>{teacher.username}</td>
-                                                <td className="center-column">{teacher.birth}</td>
+                                                <td className="center-column">{formatDate(teacher.birth)}</td>
                                                 <td className="center-column">{teacher.phoneNumber}</td>
                                                 <td>{teacher.email}</td>
-                                                <td>
-                                                <Button className="edit-button" onClick={() => openEditModal(difficult)}>Sửa</Button>
-                                                <Button className="delete-button" onClick={() => openDeleteModal(difficult._id)}>Xóa</Button>
+                                                <td className="center-column">
+                                                    <Button className="edit-button" onClick={() => openEditModal(teacher)}>Sửa</Button>
+                                                    <Button className="delete-button" onClick={() => openDeleteModal(teacher._id)}>Xóa</Button>
                                                 </td>
                                             </tr>
                                         ))
@@ -170,40 +183,68 @@ const Teacher_management = () => {
             >
                 {editingTeacher ? (
                     <div>
-                        <h2>Chỉnh sửa thông tin</h2>
+                        <h4>Chỉnh sửa thông tin</h4>
                         <div>
-                        <Row>
-                                <Col md={10}>
-                                    <Form.Group as={Row} className="mb-3" controlId="newUserName">
-                                        <Form.Label column md={5} sm={4}>Tên độ khó:</Form.Label>
-                                        <Col md={7} sm={8} className="d-flex align-items-center">
-                                            <Form.Control
-                                                type="text"
-                                                style={{ fontSize: '10px', padding: '5px' }}
-                                                placeholder="Nhập tên độ khó"
-                                                value={newUserName}
-                                                onChange={e => setNewUserName(e.target.value)} />
-                                            <span className="text-danger">*</span>
-                                        </Col>
-                                    </Form.Group>
-                                    <Form.Group as={Row} className="mb-3" controlId="newEmail">
-                                        <Form.Label column md={5} sm={4}>Mô tả:</Form.Label>
-                                        <Col md={7} sm={8} className="d-flex align-items-center">
-                                            <Form.Control
-                                                type="text"
-                                                style={{ fontSize: '10px', padding: '5px' }}
-                                                placeholder="Nhập mô tả"
-                                                value={newEmail}
-                                                onChange={e => setNewEmail(e.target.value)} />
-                                            <span className="text-danger">*</span>
-                                        </Col>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newUserName">Tên giảng viên</Form.Label>
+                                <Form.Control type="text" placeholder='Nhập họ và tên' id="newUserName" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newEmail">Địa chỉ Email</Form.Label>
+                                <Form.Control type="text" placeholder='Nhập địa chỉ email' id="newEmail" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newBirth">Ngày sinh</Form.Label>
+                                <div className="input-group" style={{ background: 'none' }}>
+                                    <DatePicker
+                                        id="newBirth"
+                                        selected={newBirth}
+                                        onChange={(date) => setNewBirth(date)}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control"
+                                    />
+                                    <label htmlFor="newBirth" style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                                        <i className="far fa-calendar-alt" style={{ marginRight: '5px' }}></i>
+                                    </label>
+                                </div>
 
-                                    </Form.Group>
-                                    {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
-                                    <Button onClick={handleEdit}>Xác nhận</Button>
-                                    <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
-                                </Col>
-                            </Row>
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label>Giới tính</Form.Label>
+                                <div>
+                                    <Form.Check
+                                        inline
+                                        type="radio"
+                                        id="male"
+                                        label="Nam"
+                                        name="gender"
+                                        checked={newGender === 'male'}
+                                        onChange={() => setNewGender('male')}
+                                    />
+                                    <Form.Check
+                                        inline
+                                        type="radio"
+                                        id="female"
+                                        label="Nữ"
+                                        name="gender"
+                                        checked={newGender === 'female'}
+                                        onChange={() => setNewGender('female')}
+                                    />
+                                </div>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newPhoneNumber">Số điện thoại</Form.Label>
+                                <Form.Control type="text" placeholder='Nhập số điện thoại' id="newPhoneNumber" value={newPhoneNumber} onChange={(e) => setNewPhoneNumber(e.target.value)} />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label htmlFor="newNote">Ghi chú</Form.Label>
+                                <Form.Control type="text" placeholder='Ghi chú' id="newNote" value={newNote} onChange={(e) => setNewNote(e.target.value)} />
+                            </Form.Group>
+
+                            <Button onClick={handleEdit}>Xác nhận</Button>
+                            <Button onClick={() => setModalIsOpen(false)}>Hủy</Button>
                         </div>
                     </div>
                 ) : (

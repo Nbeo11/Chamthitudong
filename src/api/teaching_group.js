@@ -30,3 +30,9 @@ export const getAllTeaching_group = async () => {
     });
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
+
+export const getTeaching_groupByModuleId = async (_id) => {
+    const response = await axios.get(`${API_ENDPOINTS.TEACHING_GROUPS}/module/${_id}`, {
+    });
+    return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
+};

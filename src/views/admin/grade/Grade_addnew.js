@@ -5,6 +5,8 @@ import Modal from 'react-modal'; // Import thư viện react-modal
 import { getAllCourse } from '../../../api/course';
 import { createGrade } from '../../../api/grade';
 import { getAllOlogy } from '../../../api/ology';
+import '../../../assets/css/table.css';
+
 
 const Grade_addnew = () => {
     const [gradeCode, setGradeCode] = useState('');
@@ -74,6 +76,7 @@ const Grade_addnew = () => {
                                         <Form.Label column md={4} sm={4}>Khóa học: </Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
                                             <Form.Select
+                                                className='form-select'
                                                 id="course"
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
                                                 onClick={() => getAllCourse().then(response => setCourses(response))}
@@ -90,6 +93,7 @@ const Grade_addnew = () => {
                                         <Form.Label column md={4} sm={4}>Chuyên ngành: </Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
                                             <Form.Select
+                                                className='form-select'
                                                 id="ology"
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
                                                 onClick={() => getAllOlogy().then(response => setOlogies(response))}

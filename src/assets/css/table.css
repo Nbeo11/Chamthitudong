@@ -35,6 +35,28 @@
     padding: 4px;
 }
 
+.react-datepicker-wrapper {
+    width: fit-content;
+    /* Điều chỉnh kích thước cho phù hợp với nội dung */
+}
+
+.react-datepicker {
+    font-size: 0.8rem;
+    /* Điều chỉnh kích thước font chữ */
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker__day-name,
+.react-datepicker__day {
+    font-size: 0.8rem;
+    /* Điều chỉnh kích thước font chữ cho tháng, ngày, và tên thứ */
+}
+
+.react-datepicker__header {
+    padding: 0.2rem;
+    /* Điều chỉnh khoảng cách giữa các phần header */
+}
 
 /* CSS để làm màu nền của hàng đầu tiên trong bảng */
 thead tr:first-child th {
@@ -89,12 +111,14 @@ thead tr:first-child th {
     color: red;
     margin-left: 5px;
 }
+
 .time {
     font-size: 10px;
     padding-top: 15px;
     padding-bottom: 15px;
     font-weight: bold;
 }
+
 .form-control {
     font-size: 10px;
     padding: 8px;
@@ -102,10 +126,16 @@ thead tr:first-child th {
     border-color: black;
     background-color: rgb(255, 255, 255);
 }
+
 .form-label {
     font-size: 10px;
     font-weight: bold;
 }
+
 .row {
     margin-top: 0;
+}
+
+.form-select {
+    padding: 8px;
 }

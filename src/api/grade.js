@@ -38,7 +38,7 @@ export const getAllGrade = async () => {
 };
 
 export const getAllbyCourseandOlogyId = async (courseId, ologyId) => {
-    const response = await axios.get(`${API_ENDPOINTS.STUDENTCODES}/courseandology/${courseId}/${ologyId}`, {
+    const response = await axios.get(`${API_ENDPOINTS.GRADES}/courseandology/${courseId}/${ologyId}`, {
     });
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };

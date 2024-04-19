@@ -24,9 +24,9 @@ const Module_addnew = () => {
         const requiredFields = [modulecode, modulename, numofcredit, numofexam, numofpractice, numoftask, numoftheory];
         const allFieldsFilled = requiredFields.every(field => typeof field === 'string' && field.trim() !== '');
 
-        if (numofcredit == 0 || numofpractice ==0 || numofexam ==0 || numoftask ==0 || numoftheory ==0) {
+        if (numofcredit == 0 || numofpractice == 0 || numofexam == 0 || numoftask == 0 || numoftheory == 0) {
             setErrorMessage("Số tín chỉ và số tiết học phải lớn hơn 0.");
-        } else if (allFieldsFilled && typeof compulsory === 'boolean' && numofcredit!=0) {
+        } else if (allFieldsFilled && typeof compulsory === 'boolean' && numofcredit != 0) {
             setModalIsOpen(true);
             setRequiredFieldsFilled(true);
             setErrorMessage('');
@@ -109,6 +109,7 @@ const Module_addnew = () => {
                                         <Form.Label column sm={4}>Tính chất học phần:</Form.Label>
                                         <Col sm={5} className="d-flex align-items-center">
                                             <Form.Select
+                                                className='form-select'
                                                 style={{ fontSize: '10px', padding: '8px', borderColor: 'black' }}
                                                 value={compulsory.toString()}
                                                 onChange={e => setCompulsory(e.target.value === 'true')}
@@ -200,13 +201,13 @@ const Module_addnew = () => {
                                         </Col>
                                     </Form.Group>
 
-                                    {errorMessage && <p className="text-danger">{errorMessage}</p>}
+                                    {errorMessage && <p className="text-danger" style={{ fontSize: '10px' }}>{errorMessage}</p>}
                                 </Col>
-                                <Col md ={2}>
+                                <Col md={2}>
                                 </Col>
                                 <Col>
                                     <Button variant="primary" onClick={handleSave}>Ghi dữ liệu</Button>
-                                    <Button variant="primary" className='back-button' onClick={() => window.history.back()}>Quay lại</Button> 
+                                    <Button variant="primary" className='back-button' onClick={() => window.history.back()}>Quay lại</Button>
                                 </Col>
                             </Row>
                         </Card.Body>
@@ -224,8 +225,14 @@ const Module_addnew = () => {
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '50%',
-                        height: 'auto',
+                        width: '50vw',
+                        maxHeight: '70vh',
+                        overflow: 'auto', // enable scrolling if content overflows
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        background: 'rgb(229 229 229)',
+                        color: 'black',
+                        borderColor: 'black'
                     }
                 }}
             >

@@ -100,7 +100,7 @@ const Module_management = () => {
             <Row>
                 <Col>
                     <Card>
-                    <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
+                        <Card.Header className={`header ${modalIsOpen ? 'blur-on-modal-open' : ''}`}>
                             <Card.Title as="h5">Các học phần</Card.Title>
                             <Link to="/admin/app/module/module_addnew">
                                 <Button className='add-button'>Thêm mới</Button>
@@ -184,6 +184,7 @@ const Module_management = () => {
                                         <Form.Label column md={5} sm={5}>Tính chất học phần:</Form.Label>
                                         <Col md={7} sm={7}>
                                             <Form.Select
+                                                className='form-select'
                                                 style={{ fontSize: '10px', padding: '8px', borderColor: 'black' }}
                                                 value={newCompulsory.toString()}
                                                 onChange={e => setNewCompulsory(e.target.value === 'true')}

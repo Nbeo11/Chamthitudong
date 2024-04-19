@@ -110,6 +110,11 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/app/teacher/teacher_addnew',
+        element: lazy(() => import('./views/admin/teacher/Teacher_addnew'))
+      },
+      {
+        exact: 'true',
         path: '/app/module',
         element: lazy(() => import('./views/admin/module/Module_management'))
       },
@@ -120,13 +125,13 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/typography',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTypography'))
+        path: '/app/teaching_group',
+        element: lazy(() => import('./views/admin/teaching_group/Teaching_group'))
       },
       {
         exact: 'true',
-        path: '/forms/form-basic',
-        element: lazy(() => import('./views/forms/FormsElements'))
+        path: '/app/teaching_group/teaching_group_addnew',
+        element: lazy(() => import('./views/admin/teaching_group/Teaching_group_addnew'))
       },
       {
         exact: 'true',
