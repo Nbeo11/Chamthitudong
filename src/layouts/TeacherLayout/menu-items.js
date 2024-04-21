@@ -16,35 +16,35 @@ const menuItems = {
               title: 'Homepage',
               type: 'item',
               icon: 'feather icon-home',
-              url: '/admin/app/homepage'
+              url: '/teacher/app/homepage'
             },
             {
               id: 'badges',
               title: 'Quản lý học phần',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/module'
+              url: '/teacher/app/module'
             },
             {
               id: 'badges',
               title: 'Quản lý cấu trúc đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/teaching_group'
+              url: '/teacher/app/teaching_group'
             },
             {
               id: 'badges',
               title: 'Ngân hàng câu hỏi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/exam-structure'
+              url: '/teacher/app/exam-structure'
             },
             {
               id: 'badges',
               title: 'Quản lý ra đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/question-bank'
+              url: '/teacher/app/question-bank'
             }
           ]
         },
@@ -59,21 +59,21 @@ const menuItems = {
               title: 'Tài khoản',
               type: 'item',
               icon: 'feather icon-home',
-              url: '/admin/app/auth'
+              url: '/teacher/app/auth'
             },
             {
               id: 'button',
               title: 'Hướng dẫn sử dụng',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/hdsd'
+              url: '/teacher/app/hdsd'
             },
             {
               id: 'badges',
               title: 'Đăng xuất',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/logout'
+              url: '/teacher/app/logout'
             }
           ]
         }

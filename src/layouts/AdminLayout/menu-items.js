@@ -72,14 +72,14 @@ const menuItems = {
               title: 'Phê duyệt cấu trúc đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/exam-structure'
+              url: '/admin/app/exam_structure'
             },
             {
               id: 'badges',
               title: 'Phê duyệt ngân hàng câu hỏi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/question-bank'
+              url: '/admin/app/question_bank'
             },
             {
               id: 'badges',

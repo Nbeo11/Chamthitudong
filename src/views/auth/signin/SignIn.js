@@ -4,7 +4,8 @@ import { Card, Col, Row } from 'react-bootstrap';
 import { userLogin } from '../../../api/user';
 import logoutt from '../../../assets/images/logo.png';
 
-import Breadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
+import AdminBreadcrumb from '../../../layouts/AdminLayout/Breadcrumb';
+import TeacherBreadcrumb from '../../../layouts/TeacherLayout/Breadcrumb';
 
 export default class SignIn extends React.Component {
   constructor(props) {
@@ -50,9 +51,12 @@ export default class SignIn extends React.Component {
     }
   };
   render() {
+    const { breadcrumbPath } = this.state;
+    const BreadcrumbComponent = breadcrumbPath === 'teacher' ? TeacherBreadcrumb : AdminBreadcrumb;
+
     return (
       <React.Fragment>
-        <Breadcrumb />
+        {BreadcrumbComponent && <BreadcrumbComponent />}
         <div className="auth-wrapper">
           <div className="auth-content">
             <div className="auth-bg">

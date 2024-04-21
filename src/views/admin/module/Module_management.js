@@ -114,7 +114,7 @@ const Module_management = () => {
                                         <th>Mã học phần</th>
                                         <th>Tên học phần</th>
                                         <th>Số tín chỉ</th>
-                                        <th className='action-button'>Hành động</th>
+                                        <th className='action-button'>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -5,23 +5,29 @@ import "react-datepicker/dist/react-datepicker.css";
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 import { getAllModule } from '../../../api/module';
-import { deleteStudent, updateStudent } from '../../../api/student';
 import { getAllTeacher } from '../../../api/teacher';
-import { getAllTeaching_group, getTeaching_groupByModuleId } from '../../../api/teaching_group';
+import { deleteTeaching_group, getAllTeaching_group, getTeaching_groupByModuleId, updateTeaching_group } from '../../../api/teaching_group';
+import '../../../assets/css/table.css';
 
 
 const Teaching_group = () => {
     const [teaching_groups, setTeaching_groups] = useState([]);
+    const [selectedTeaching_groupId, setSelectedTeaching_groupId] = useState(null);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [editingTeaching_group, setEditingTeaching_group] = useState(null);
     const [modules, setModules] = useState([]);
+    const [newModules, setNewModules] = useState('')
     const [selectedModuleId, setSelectedModuleId] = useState('');
+    const [newLecturerincharges, setNewLecturerincharges] = useState([]);
     const [lecturerincharges, setLecturerincharges] = useState([]);
     const [selectedLecturerinchargeId, setSelectedLecturerinchargeId] = useState('');
+    const [newMainlecturers, setNewMainlecturers] = useState([]);
     const [mainlecturers, setMainlecturers] = useState([]);
-    const [selectedMainlecturerId, setSelectedMainlecturerId] = useState('');
+    const [selectedMainlecturerId, setSelectedMainlecturerId] = useState([]);
+    const [newAssistantlecturers, setNewAssistantlecturers] = useState([]);
     const [assistantlecturers, setAssistantlecturers] = useState([]);
-    const [selectedAssistantlecturerId, setSelectedAssistantlecturerId] = useState('');
+    const [selectedAssistantlecturerId, setSelectedAssistantlecturerId] = useState([]);
+    const [selectedModuleName, setSelectedModuleName] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,21 +43,14 @@ const Teaching_group = () => {
         fetchData();
     }, []);
 
-    const fetchTeaching_groups = async (gradeId) => {
-        try {
-            const response = await getTeaching_groupByModuleId(gradeId);
-            setStudents(response);
-        } catch (error) {
-            console.error('Error fetching students:', error);
-        }
-    };
+
 
     const handleDelete = async () => {
         try {
-            await deleteStudent(selectedStudentId);
+            await deleteTeaching_group(selectedTeaching_groupId);
             // Cập nhật danh sách sinh viên sau khi xóa thành công
-            fetchStudents(selectedGradeId);
-            setModalIsOpen(false); // Move setModalIsOpen after fetchStudents
+            setModalIsOpen(false);
+            setTeaching_groups(await getAllTeaching_group())
         } catch (error) {
             console.error('Error deleting student:', error);
         }
@@ -60,20 +59,23 @@ const Teaching_group = () => {
 
 
     const openDeleteModal = (id) => {
-        setSelectedStudentId(id);
+        setSelectedTeaching_groupId(id);
         openEditModal(false);
         setModalIsOpen(true);
     };
 
     const openEditModal = (teaching_group) => {
         setEditingTeaching_group(teaching_group);
-        setNewUserName(teaching_group.username);
-        setNewEmail(teaching_group.email);
-        setNewPassword(teaching_group.password);
-        setNewBirth(teaching_group.birth);
-        setNewGender(teaching_group.gender);
-        setNewPhoneNumber(teaching_group.phoneNumber);
-        setNewNote(teaching_group.note);
+        setNewModules(teaching_group.moduleName);
+        setNewLecturerincharges(teaching_group.lecturerInChargeName);
+        setNewMainlecturers(teaching_group.mainlecturer ? teaching_group.mainlecturer.map((lecturer, index) => (
+            <div key={index}>{lecturer.lecturerName}</div>
+        )) : []);
+
+        setNewAssistantlecturers(teaching_group.assistantlecturer ? teaching_group.assistantlecturer.map((lecturer, index) => (
+            <div key={index}>{lecturer.lecturerName}</div>
+        )) : []);
+
         setModalIsOpen(true);
     };
 
@@ -85,29 +87,32 @@ const Teaching_group = () => {
                 mainlecturerId: selectedMainlecturerId,
                 assistantlecturerId: selectedAssistantlecturerId
             };
-            await updateStudent(editingStudent._id, data)
+            await updateTeaching_group(editingTeaching_group._id, data);
             setModalIsOpen(false);
-            if (selectedModuleId) {
-                fetchTeaching_groups(selectedModuleId); // Update student list after successful edit
-            } else {
-                fetchAllTeaching_groups(); // Update student list after successful edit
-            }
+            // Cập nhật danh sách sau khi chỉnh sửa thành công
+            setTeaching_groups(await getAllTeaching_group());
         } catch (error) {
-            console.error('Error editing student:', error);
+            console.error('Error editing teaching_group:', error);
+        }
+    };
+    const fetchTeaching_groupsbymoduleid = async (moduleId) => {
+        try {
+            const response = await getTeaching_groupByModuleId(moduleId);
+            setTeaching_groups(response);
+            console.log("oke", response);
+            console.log('teaching_groups.length: ', teaching_groups.length)
+            console.log('teaching_groups: ', teaching_groups)
+        } catch (error) {
+            console.error('Error fetching teaching_groups:', error);
         }
     };
 
     const handleFindGrade = async () => {
         try {
-            if (selectedGradeId) {
-                fetchStudents(selectedGradeId);
-                // Fetch and set selected course, ology, and grade names
-                /*const selectedCourse = courses.find(course => course._id === selectedCourseId);
-                const selectedOlogy = ologies.find(ology => ology._id === selectedOlogyId);
-                const selectedGrade = grades.find(grade => grade._id === selectedGradeId);
-                setSelectedCourseName(selectedCourse ? selectedCourse.coursename : '');
-                setSelectedOlogyName(selectedOlogy ? selectedOlogy.ologyname : '');
-                setSelectedGradeName(selectedGrade ? selectedGrade.gradename : '');*/
+            if (selectedModuleId) {
+                fetchTeaching_groupsbymoduleid(selectedModuleId);
+                const selectedModule = modules.find(module => module._id === selectedModuleId);
+                setSelectedModuleName(selectedModule ? selectedModule.modulename : '')
             }
         } catch (error) {
             console.error('Error finding grades:', error);
@@ -151,7 +156,7 @@ const Teaching_group = () => {
                             </Row>
                             <Row>
                                 <Col>
-                                    <p>Học phần: {selectedModuleId}</p>
+                                    <p>Học phần: {selectedModuleName}</p>
                                 </Col>
                             </Row>
 
@@ -193,7 +198,7 @@ const Teaching_group = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="6">Không có sinh viên</td>
+                                            <td colSpan="6">Không có giảng viên</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -238,7 +243,7 @@ const Teaching_group = () => {
                                         id="module"
                                         onClick={() => getAllModule().then(response => setModules(response))}
                                         onChange={(e) => setSelectedModuleId(e.target.value)}>
-                                        <option value="">Chọn học phần</option>
+                                        <option value="">{newModules}</option>
                                         {modules && modules.map(module => (
                                             <option key={module._id} value={module._id}>{module.modulename}</option>
                                         ))}
@@ -252,7 +257,7 @@ const Teaching_group = () => {
                                         id="lecturerincharge"
                                         onClick={() => getAllTeacher().then(response => setLecturerincharges(response))}
                                         onChange={(e) => setSelectedLecturerinchargeId(e.target.value)}>
-                                        <option value="">Giangr viên phụ trách</option>
+                                        <option value="">{newLecturerincharges}</option>
                                         {lecturerincharges && lecturerincharges.map(lecturerincharge => (
                                             <option key={lecturerincharge._id} value={lecturerincharge._id}>{lecturerincharge.username}</option>
                                         ))}
@@ -266,7 +271,7 @@ const Teaching_group = () => {
                                         id="mainlecturer"
                                         onClick={() => getAllTeacher().then(response => setMainlecturers(response))}
                                         onChange={(e) => setSelectedMainlecturerId(e.target.value)}>
-                                        <option value="">Giảng viên dạy chính</option>
+                                        <option value="">{newMainlecturers}</option>
                                         {mainlecturers && mainlecturers.map(mainlecturer => (
                                             <option key={mainlecturer._id} value={mainlecturer._id}>{mainlecturer.username}</option>
                                         ))}
@@ -280,18 +285,14 @@ const Teaching_group = () => {
                                         id="assistantlecturer"
                                         onClick={() => getAllTeacher().then(response => setAssistantlecturers(response))}
                                         onChange={(e) => setSelectedAssistantlecturerId(e.target.value)}>
-                                        <option value="">Giảng viên dạy chính</option>
+                                        <option value="">{newAssistantlecturers}</option>
                                         {assistantlecturers && assistantlecturers.map(assistantlecturer => (
                                             <option key={assistantlecturer._id} value={assistantlecturer._id}>{assistantlecturer.username}</option>
                                         ))}
                                     </Form.Select>
                                 </Col>
 
-                                {selectedModuleId && (
-                                    <Col xs={1}>
-                                        <Button onClick={handleFindGrade}>Tìm</Button>
-                                    </Col>
-                                )}
+
                             </Row>
 
                             <Button onClick={handleEdit}>Xác nhận</Button>

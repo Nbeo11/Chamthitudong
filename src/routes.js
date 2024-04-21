@@ -135,13 +135,13 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/tables/bootstrap',
-        element: lazy(() => import('./views/tables/BootstrapTable'))
+        path: '/app/exam_structure',
+        element: lazy(() => import('./views/admin/exam_structure/Exam_structure'))
       },
       {
         exact: 'true',
-        path: '/charts/nvd3',
-        element: lazy(() => import('./views/charts/nvd3-chart'))
+        path: '/app/exam_structure/exam_structure_check',
+        element: lazy(() => import('./views/admin/exam_structure/Exam_structure_check'))
       },
       {
         exact: 'true',
@@ -166,13 +166,13 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/button',
-        element: lazy(() => import('./views/ui-elements/basic/BasicButton'))
+        path: '/app/module',
+        element: lazy(() => import('./views/teacher/module/Module_management'))
       },
       {
         exact: 'true',
-        path: '/basic/badges',
-        element: lazy(() => import('./views/ui-elements/basic/BasicBadges'))
+        path: '/app/module/module_addinfo/:moduleId',
+        element: lazy(() => import('./views/teacher/module/Module_addinfo'))
       },
       {
         exact: 'true',

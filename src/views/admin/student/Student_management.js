@@ -87,6 +87,8 @@ const Student_management = () => {
         try {
             const response = await getStudentbyGradeId(gradeId);
             setStudents(response);
+            console.log('students.length: ', students.length)
+                console.log('students: ', students)
             console.log("oke", response);
         } catch (error) {
             console.error('Error fetching students:', error);

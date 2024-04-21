@@ -100,7 +100,7 @@ const Difficulty_category = () => {
                                         <th>STT</th>
                                         <th>Tên</th>
                                         <th>Mô tả</th>
-                                        <th>Hành động</th>
+                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -102,7 +102,7 @@ const Ology_management = () => {
                                         <th>STT</th>
                                         <th>Tên chuyên ngành</th>
                                         <th>Mô tả</th>
-                                        <th>Hành động</th>
+                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
