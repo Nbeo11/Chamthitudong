@@ -176,8 +176,8 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/breadcrumb',
-        element: lazy(() => import('./views/ui-elements/basic/BasicBreadcrumb'))
+        path: '/app/module/module_updateinfo/:moduleId',
+        element: lazy(() => import('./views/teacher/module/Module_updateinfo'))
       },
       {
         exact: 'true',

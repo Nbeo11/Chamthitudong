@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Row, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getAllModule } from '../../../api/module';
+import { getAllModule, updateModule } from '../../../api/module';
 import '../../../assets/css/table.css';
 
 const Module_management = () => {
     const [modules, setModules] = useState([]);
-
+    const [moduleStatus, setModuleStatus] = useState('');
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -24,15 +24,40 @@ const Module_management = () => {
     const getStatusText = (modulestatus) => {
         switch (modulestatus) {
             case 0:
-                return 'Thêm thông tin';
+                return 'Chưa điền thông tin';
             case 1:
-                return 'Sửa và gửi phê duyệt';
+                return 'Chưa gửi';
             case 2:
-                return 'Sửa và hủy yêu cầu phê duyệt';
+                return 'Đã gửi';
             case 3:
-                return 'Yêu cầu sửa';
+                return 'Đã duyệt';
             default:
                 return '';
+        }
+    };
+    const handleSendApproval = async (moduleId) => {
+        try {
+            setModuleStatus(2)
+            const data = {
+                modulestatus: moduleStatus
+            }
+            await updateModule(moduleId, data); // Gửi phê duyệt, status chuyển thành 2
+            setModules(updatedModules);
+        } catch (error) {
+            console.error('Error updating module status:', error);
+        }
+    };
+
+    const handleCancelApproval = async (moduleId) => {
+        try {
+            setModuleStatus(1)
+            const data = {
+                modulestatus: moduleStatus
+            }
+            await updateModule(moduleId, data); 
+            setModules(updatedModules);
+        } catch (error) {
+            console.error('Error updating module status:', error);
         }
     };
 
@@ -72,12 +97,18 @@ const Module_management = () => {
                                                 )}
                                                 {(module.modulestatus === 1 || module.modulestatus === 2) && (
                                                     <React.Fragment>
-                                                        <Link to={`/teacher/app/module/edit/${module._id}`}>
+                                                        <Link to={`/teacher/app/module/module_updateinfo/${module._id}`}>
                                                             <Button className="edit-button">Sửa</Button>
                                                         </Link>
-                                                        <Button className="send-approval-button">
-                                                            {module.modulestatus === 1 ? 'Gửi phê duyệt' : 'Hủy phê duyệt'}
-                                                        </Button>
+                                                        {module.modulestatus === 1 ? (
+                                                            <Button className="send-approval-button" onClick={() => handleSendApproval(module._id)}>
+                                                                Gửi phê duyệt
+                                                            </Button>
+                                                        ) : (
+                                                            <Button className="send-approval-button" onClick={() => handleCancelApproval(module._id)}>
+                                                                Hủy phê duyệt
+                                                            </Button>
+                                                        )}
                                                     </React.Fragment>
                                                 )}
                                                 {module.modulestatus === 3 && (
