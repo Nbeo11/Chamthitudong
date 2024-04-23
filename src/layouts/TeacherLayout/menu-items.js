@@ -30,21 +30,21 @@ const menuItems = {
               title: 'Quản lý cấu trúc đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/teacher/app/teaching_group'
+              url: '/teacher/app/exam_structure'
             },
             {
               id: 'badges',
               title: 'Ngân hàng câu hỏi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/teacher/app/exam-structure'
+              url: '/teacher/app/question_bank'
             },
             {
               id: 'badges',
               title: 'Quản lý ra đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/teacher/app/question-bank'
+              url: '/teacher/app/'
             }
           ]
         },

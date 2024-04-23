@@ -3,22 +3,22 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { useParams } from 'react-router-dom';
-import { getModuledetails, updateModule } from '../../../api/module';
+import { getExam_structuredetails } from '../../../api/exam_structure';
 import '../../../assets/css/table.css';
 
-const Module_addnew = () => {
-    const [moduledescription, setModuleDescription] = useState('');
+const Exam_structure_addinfo = () => {
+    const [exam_structuredescription, setExam_structureDescription] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-    const { moduleId } = useParams();
+    const { exam_structureId } = useParams();
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [moduleInfo, setModuleInfo] = useState([]);
+    const [exam_structureInfo, setExam_structureInfo] = useState([]);
 
     const [chapters, setChapters] = useState([{ chaptername: '', description: '' }]);
 
     const handleAddChapter = () => {
         const newChapter = {
-            chaptername: `Chương ${chapters.length + 1}`,
+            chaptername: `Câu ${chapters.length + 1}`,
             description: ''
         };
         console.log('Adding chapter:', newChapter); // Log the new chapter being added
@@ -40,14 +40,14 @@ const Module_addnew = () => {
     useEffect(() => {
         const newChapters = chapters.map((chapter, index) => ({
             ...chapter,
-            chaptername: `Chương ${index + 1}`
+            chaptername: `Câu ${index + 1}`
         }));
         setChapters(newChapters);
     }, []); // [] đảm bảo useEffect chỉ chạy một lần khi component được render lần đầu
 
     const handleSubmitForApproval = () => {
         if (checkDataValidity()) {
-            setModuleStatus(2); // Set module status to 2 (pending approval)
+            setExam_structureStatus(2); // Set exam_structure status to 2 (pending approval)
             setModalIsOpen(true);
         } else {
             setErrorMessage('Vui lòng điền đầy đủ nội dung cho các chương và nội dung học phần');
@@ -60,21 +60,22 @@ const Module_addnew = () => {
         setChapters(newChapters);
     };
     useEffect(() => {
-        const fetchModuleInfo = async () => {
+        const fetchExam_structureInfo = async () => {
             try {
-                const response = await getModuledetails(moduleId);
-                setModuleInfo({
-                    modulecode: response.modulecode,
-                    modulename: response.modulename,
-                    numofcredit: response.numofcredit,
+                const response = await getExam_structuredetails(exam_structureId);
+                console.log('exam_structureId', response)
+                setExam_structureInfo({
+                    modulecode: response.moduleCode,
+                    modulename: response.moduleName,
+                    numofcredit: response.numofCredit,
                 });
             } catch (error) {
-                console.error('Error fetching module info:', error);
+                console.error('Error fetching exam_structure info:', error);
             }
         };
 
-        fetchModuleInfo();
-    }, [moduleId]);
+        fetchExam_structureInfo();
+    }, [exam_structureId]);
 
     const handleSave = () => {
         if (checkDataValidity()) {
@@ -85,7 +86,7 @@ const Module_addnew = () => {
     };
     const checkDataValidity = () => {
         // Kiểm tra xem nội dung của tất cả các chương và nội dung học phần có được điền không
-        if (moduledescription.trim() === '') return false; // Kiểm tra nội dung học phần
+        if (exam_structuredescription.trim() === '') return false; // Kiểm tra nội dung học phần
         for (let i = 0; i < chapters.length; i++) {
             if (chapters[i].chaptername.trim() === '' || chapters[i].description.trim() === '') {
                 return false; // Trả về false nếu có ít nhất một chương không có đầy đủ nội dung
@@ -95,9 +96,9 @@ const Module_addnew = () => {
     };
     const handleConfirm = async () => {
         const data = {
-            moduledescription: moduledescription,
+            exam_structuredescription: exam_structuredescription,
             chapters: chapters,
-            modulestatus: 1 // Đặt modulestatus trong data trực tiếp thành 1
+            exam_structurestatus: 1 // Đặt exam_structurestatus trong data trực tiếp thành 1
         };
         setErrorMessage('');
         setShowSuccessMessage(true);
@@ -107,7 +108,7 @@ const Module_addnew = () => {
         }, 3000);
 
         try {
-            const response = await updateModule(moduleId, data)
+            const response = await updateExam_structure(exam_structureId, data)
             console.log('API Response:', response);
             setModalIsOpen(false);
         } catch (error) {
@@ -131,80 +132,125 @@ const Module_addnew = () => {
                         </Card.Header>
                         <Card.Body>
                             <Row>
-                                <Col md={6}>
-                                    <Form.Group as={Row} className="mb-3" controlId="modulecode">
-                                        <Form.Label column md={4} sm={3}>Mã học phần:</Form.Label>
-                                        <Col sm={4} className="d-flex align-items-center">
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Nhập thông tin mã học phần"
-                                                value={moduleInfo.modulecode}
-                                                readOnly />
-                                        </Col>
-                                    </Form.Group>
+                                <Col md={6} className="d-flex align-items-center">
+                                    <Col md={8}>
+                                        <Form.Group as={Row} className="mb-3" controlId="moduleCode">
+                                            <Form.Label column md={6} sm={3}>Mã học phần:</Form.Label>
+                                            <Col sm={4} className="d-flex align-items-center">
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Nhập thông tin mã học phần"
+                                                    value={exam_structureInfo.modulecode}
+                                                    readOnly />
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Form.Group as={Row} className="mb-3" controlId="numofcredit">
+                                            <Form.Label column sm={7}>Số tín chỉ:</Form.Label>
+                                            <Col sm={5} className="d-flex align-items-center">
+                                                <Form.Control
+                                                    type="text"
+                                                    value={exam_structureInfo.numofcredit}
+                                                    readOnly />
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={6}></Col>
+                                <Col md={6} className="d-flex align-items-center">
+                                    <Col md={12}>
+                                        <Form.Group as={Row} className="mb-3" controlId="moduleName">
+                                            <Form.Label column md={4} sm={3}>Tên học phần:</Form.Label>
+                                            <Col sm={7} className="d-flex align-items-center">
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="Nhập tên học phần"
+                                                    value={exam_structureInfo.modulename}
+                                                    readOnly />
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Group as={Row} className="mb-3" controlId="modulename">
-                                        <Form.Label column md={4} sm={3}>Tên học phần:</Form.Label>
-                                        <Col sm={5} className="d-flex align-items-center">
+                                <Col md={3}>
+                                    <Form.Group as={Row} className="mb-3" controlId="moduleName">
+                                        <Form.Label column md={5} sm={3}>Thời gian thi:</Form.Label>
+                                        <Col sm={6} className="d-flex align-items-center">
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Nhập tên học phần"
-                                                value={moduleInfo.modulename}
+                                                value={exam_structureInfo.modulename}
                                                 readOnly />
+                                                <span style={{fontSize:'10px', fontStyle:'italic'}}> (Phút)</span>
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Group as={Row} className="mb-3" controlId="numofcredit">
-                                        <Form.Label column sm={3}>Số tín chỉ:</Form.Label>
-                                        <Col sm={2} className="d-flex align-items-center">
+                                <Col md={3}>
+                                    <Form.Group as={Row} className="mb-3" controlId="moduleName">
+                                        <Form.Label column md={5} sm={3}>Hình thức thi:</Form.Label>
+                                        <Col sm={7} className="d-flex align-items-center">
                                             <Form.Control
                                                 type="text"
                                                 placeholder="Nhập tên học phần"
-                                                value={moduleInfo.numofcredit}
+                                                value={exam_structureInfo.modulename}
                                                 readOnly />
                                         </Col>
                                     </Form.Group>
                                 </Col>
                                 <Col md={12} sm={12}>
-                                    <Form.Group as={Row} className="mb-3" controlId="moduledescription">
+                                    <Form.Group as={Row} className="mb-3" controlId="exam_structuredescription">
                                         <Form.Label column md={2} sm={3}>Nội dung:</Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
                                             <Form.Control
                                                 required
                                                 type="text"
                                                 placeholder="Nhập nội dung học phần"
-                                                value={moduledescription}
-                                                onChange={e => setModuleDescription(e.target.value)} />
+                                                value={exam_structuredescription}
+                                                onChange={e => setExam_structureDescription(e.target.value)} />
                                         </Col>
                                     </Form.Group>
                                 </Col >
+                                <Form.Label column md={2} sm={3}>Cấu trúc đề thi:</Form.Label>
+                                <Form.Label column md={2} sm={3}>Câu hỏi số:</Form.Label>
+                                <Form.Label column md={1} sm={3}>Số điểm:</Form.Label>
+                                <Form.Label column md={3} sm={3}>Chương -mục:</Form.Label>
+                                <Form.Label column md={2} sm={3}>Độ khó:</Form.Label>
+
                                 {chapters.map((chapter, index) => (
                                     <Col md={12} sm={12} key={index}>
-                                        <Form.Group as={Row} className="mb-3" controlId={`moduledescription_${index}`}>
-                                            {index === 0 && (
-                                                <Form.Label column md={2} sm={3}>Chương - mục:</Form.Label>
-                                            )}
-                                            {index !== 0 && (
-                                                <Col md={2} sm={3}></Col>
-                                            )}
+                                        <Form.Group as={Row} className="mb-3" controlId={`exam_structuredescription_${index}`}>
+
+                                            <Col md={2} sm={3}></Col>
                                             <Col md={2} sm={2} className="d-flex align-items-center">
                                                 <Form.Control
                                                     required
                                                     type="text"
-                                                    placeholder={`Chương ${index + 1}`}
-                                                    value={`Chương ${index + 1}`}
+                                                    placeholder={`Câu ${index + 1}`}
+                                                    value={`Câu ${index + 1}`}
                                                     readOnly
                                                 />
                                             </Col>
-                                            <Col md={6} sm={6} className="d-flex align-items-center">
+                                            <Col md={1} sm={1} className="d-flex align-items-center">
                                                 <Form.Control
                                                     required
                                                     type="text"
-                                                    placeholder={`Mô tả nội dung chương ${index + 1}`}
+                                                    placeholder={`Điểm`}
+                                                    value={chapter.description}
+                                                    onChange={(e) => handleDescriptionChange(e.target.value, index)} />
+                                            </Col>
+                                            <Col md={3} sm={3} className="d-flex align-items-center">
+                                                <Form.Control
+                                                    required
+                                                    type="text"
+                                                    placeholder={`Cho phép chọn nhiều`}
+                                                    value={chapter.description}
+                                                    onChange={(e) => handleDescriptionChange(e.target.value, index)} />
+                                            </Col>
+                                            <Col md={2} sm={2} className="d-flex align-items-center">
+                                                <Form.Control
+                                                    required
+                                                    type="text"
+                                                    placeholder={`Chọn độ khó`}
                                                     value={chapter.description}
                                                     onChange={(e) => handleDescriptionChange(e.target.value, index)} />
                                             </Col>
@@ -272,8 +318,8 @@ const Module_addnew = () => {
                     <Button className='back-button' onClick={handleCancel}>Hủy</Button>
                 </div>
             </Modal>
-        </React.Fragment>
+        </React.Fragment >
     );
 };
 
-export default Module_addnew;
+export default Exam_structure_addinfo;

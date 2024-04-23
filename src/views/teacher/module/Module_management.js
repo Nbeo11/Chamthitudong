@@ -2,19 +2,25 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Row, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getAllModule, updateModule } from '../../../api/module';
+import { getModuledetails, updateModule } from '../../../api/module';
+import { getTeacherdetails } from '../../../api/teacher';
 import '../../../assets/css/table.css';
 
 const Module_management = () => {
     const [modules, setModules] = useState([]);
-    const [moduleStatus, setModuleStatus] = useState('');
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getAllModule();
-                setModules(response);
+                const userId = localStorage.getItem('userId'); // Lấy userID từ localStorage
+                const teacherDetails = await getTeacherdetails(userId); // Gọi API để lấy thông tin giảng viên
+                const modulesPromises = teacherDetails.teachingGroups.map(async (group) => {
+                    const moduleDetail = await getModuledetails(group.moduleId); // Gọi API để lấy thông tin chi tiết môn học
+                    return { ...moduleDetail, role: group.role }; // Thêm thông tin vai trò vào môn học
+                });
+                const modules = await Promise.all(modulesPromises); // Đợi tất cả các promise trả về
+                setModules(modules);
             } catch (error) {
-                console.error('Error fetching modules:', error);
+                console.error('Error fetching teacher modules:', error);
             }
         };
 
@@ -37,11 +43,17 @@ const Module_management = () => {
     };
     const handleSendApproval = async (moduleId) => {
         try {
-            setModuleStatus(2)
             const data = {
-                modulestatus: moduleStatus
+                modulestatus: 2
             }
             await updateModule(moduleId, data); // Gửi phê duyệt, status chuyển thành 2
+            const updatedModules = modules.map(module => {
+                if (module._id === moduleId) {
+                    return { ...module, modulestatus: 2 };
+                } else {
+                    return module;
+                }
+            });
             setModules(updatedModules);
         } catch (error) {
             console.error('Error updating module status:', error);
@@ -50,11 +62,17 @@ const Module_management = () => {
 
     const handleCancelApproval = async (moduleId) => {
         try {
-            setModuleStatus(1)
             const data = {
-                modulestatus: moduleStatus
+                modulestatus: 1
             }
-            await updateModule(moduleId, data); 
+            await updateModule(moduleId, data);
+            const updatedModules = modules.map(module => {
+                if (module._id === moduleId) {
+                    return { ...module, modulestatus: 1 };
+                } else {
+                    return module;
+                }
+            });
             setModules(updatedModules);
         } catch (error) {
             console.error('Error updating module status:', error);
@@ -77,6 +95,7 @@ const Module_management = () => {
                                         <th>Mã học phần</th>
                                         <th>Tên học phần</th>
                                         <th>Mô tả nội dung học phần</th>
+                                        <th>Vai trò</th> {/* Thêm cột vai trò */}
                                         <th>Trạng thái</th>
                                         <th className='action-button'>Thao tác</th>
                                     </tr>
@@ -88,6 +107,7 @@ const Module_management = () => {
                                             <td className="center-column">{module.modulecode}</td>
                                             <td>{module.modulename}</td>
                                             <td className="center-column">{module.moduledescription}</td>
+                                            <td>{module.role}</td>
                                             <td className="center-column">{getStatusText(module.modulestatus)}</td>
                                             <td className="center-column">
                                                 {module.modulestatus === 0 && (

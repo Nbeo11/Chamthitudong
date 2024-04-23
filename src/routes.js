@@ -181,6 +181,16 @@ const routes = [
       },
       {
         exact: 'true',
+        path: '/app/exam_structure',
+        element: lazy(() => import('./views/teacher/exam_structure/Exam_structure_management'))
+      },
+      {
+        exact: 'true',
+        path: '/app/exam_structure/exam_structure_addinfo/:exam_structureId',
+        element: lazy(() => import('./views/teacher/exam_structure/Exam_structure_addinfo'))
+      },
+      {
+        exact: 'true',
         path: '/basic/pagination',
         element: lazy(() => import('./views/ui-elements/basic/BasicPagination'))
       },

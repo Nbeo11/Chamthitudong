@@ -28,7 +28,7 @@ export default class SignIn extends React.Component {
     this.setState({ isLoading: true }); // Bắt đầu gửi yêu cầu, thiết lập isLoading thành true
     try {
       const result = await userLogin(this.state.email, this.state.password); // Sử dụng hàm gọi API từ tệp service
-      localStorage.setItem("userId", result.user._id);
+      localStorage.setItem("userId", result.user.user_id);
       localStorage.setItem("userType", result.user.role);
       localStorage.setItem("userName", result.user.username);
 

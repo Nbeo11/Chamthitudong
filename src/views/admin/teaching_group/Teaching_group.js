@@ -95,24 +95,28 @@ const Teaching_group = () => {
             console.error('Error editing teaching_group:', error);
         }
     };
-    const fetchTeaching_groupsbymoduleid = async (moduleId) => {
-        try {
-            const response = await getTeaching_groupByModuleId(moduleId);
-            setTeaching_groups(response);
-            console.log("oke", response);
-            console.log('teaching_groups.length: ', teaching_groups.length)
-            console.log('teaching_groups: ', teaching_groups)
-        } catch (error) {
-            console.error('Error fetching teaching_groups:', error);
-        }
-    };
+    // const fetchTeaching_groupsbymoduleid = async (moduleId) => {
+    //     try {
+    //         const response = await getTeaching_groupByModuleId(moduleId);
+    //         setTeaching_groups(response);
+    //         console.log("oke", response);
+    //         console.log('teaching_groups.length: ', teaching_groups.length)
+    //         console.log('teaching_groups: ', teaching_groups)
+    //     } catch (error) {
+    //         console.error('Error fetching teaching_groups:', error);
+    //     }
+    // };
 
     const handleFindGrade = async () => {
         try {
-            if (selectedModuleId) {
-                fetchTeaching_groupsbymoduleid(selectedModuleId);
+            if (!selectedModuleId) {
+                setTeaching_groups(await getAllTeaching_group());
+                setSelectedModuleName('Tất cả');
+            } else {
+                const response = await getTeaching_groupByModuleId(selectedModuleId);
+                setTeaching_groups(response);
                 const selectedModule = modules.find(module => module._id === selectedModuleId);
-                setSelectedModuleName(selectedModule ? selectedModule.modulename : '')
+                setSelectedModuleName(selectedModule ? selectedModule.modulename : '');
             }
         } catch (error) {
             console.error('Error finding grades:', error);
@@ -141,18 +145,15 @@ const Teaching_group = () => {
                                         id="module"
                                         onClick={() => getAllModule().then(response => setModules(response))}
                                         onChange={(e) => setSelectedModuleId(e.target.value)}>
-                                        <option value="">Chọn học phần</option>
+                                        <option value="">Tất cả</option>
                                         {modules && modules.map(module => (
                                             <option key={module._id} value={module._id}>{module.modulename}</option>
                                         ))}
                                     </Form.Select>
                                 </Col>
-
-                                {selectedModuleId && (
-                                    <Col xs={1}>
-                                        <Button onClick={handleFindGrade}>Tìm</Button>
-                                    </Col>
-                                )}
+                                <Col xs={1}>
+                                    <Button onClick={handleFindGrade}>Tìm</Button>
+                                </Col>
                             </Row>
                             <Row>
                                 <Col>
