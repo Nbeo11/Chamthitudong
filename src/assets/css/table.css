@@ -139,3 +139,14 @@ thead tr:first-child th {
 .form-select {
     padding: 8px;
 }
+.multiselect-fixed-width {
+    width: 100%;
+}
+
+.multiselect-fixed-width .ms-dropdown {
+    width: 100%;
+}
+
+.multiselect-fixed-width .ms-list {
+    width: 100%;
+}

@@ -2,63 +2,108 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import Modal from 'react-modal';
+import { MultiSelect } from "react-multi-select-component";
 import { useParams } from 'react-router-dom';
-import { getExam_structuredetails } from '../../../api/exam_structure';
+import { getAllDifficult } from '../../../api/difficult';
+import { getExam_structuredetails, updateExam_structure } from '../../../api/exam_structure';
+import { getModuledetails } from '../../../api/module';
 import '../../../assets/css/table.css';
 
+
 const Exam_structure_addinfo = () => {
-    const [exam_structuredescription, setExam_structureDescription] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { exam_structureId } = useParams();
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [exam_structureInfo, setExam_structureInfo] = useState([]);
+    const [exam_time, setExam_time] = useState('');
+    const [exam_format, setExam_format] = useState("Thực hành");
+    const [structures, setStructures] = useState([{ score: '', chapters: [], difficulty: '' }]);
+    const [chapters, setChapters] = useState([]); // State để lưu trữ danh sách các chương
+    const [selectedChapters, setSelectedChapters] = useState([]); // Định nghĩa selectedChapters
+    const [difficults, setDifficults] = useState([]);
 
-    const [chapters, setChapters] = useState([{ chaptername: '', description: '' }]);
-
-    const handleAddChapter = () => {
-        const newChapter = {
-            chaptername: `Câu ${chapters.length + 1}`,
-            description: ''
+    const handleAddStructure = () => {
+        const newStructure = {
+            structurename: `Câu ${structures.length + 1}`,
+            score: '',
+            chapters: [],
+            difficulty: ''
         };
-        console.log('Adding chapter:', newChapter); // Log the new chapter being added
-        setChapters([...chapters, newChapter]);
+        console.log('Adding structure:', newStructure); // Log the new structure being added
+        setStructures([...structures, newStructure]);
     };
 
-    const handleRemoveChapter = (index) => {
-        console.log('Removing chapter at index:', index); // Log the index of the chapter being removed
-        if (chapters.length === 1) {
-            setChapters([{ chaptername: '', description: '' }]);
+    const handleRemoveStructure = (index) => {
+        console.log('Removing structure at index:', index); // Log the index of the structure being removed
+        if (structures.length === 1) {
+            setStructures([{ structurename: '', score: '', chapter: [], difficulty: '' }]);
         } else {
-            const newChapters = [...chapters];
-            newChapters.splice(index, 1);
-            setChapters(newChapters);
+            const newStructures = [...structures];
+            newStructures.splice(index, 1);
+            setStructures(newStructures);
         }
     };
 
 
     useEffect(() => {
-        const newChapters = chapters.map((chapter, index) => ({
-            ...chapter,
-            chaptername: `Câu ${index + 1}`
+        const newStructures = structures.map((structure, index) => ({
+            ...structure,
+            structurename: `Câu ${index + 1}`,
+
         }));
-        setChapters(newChapters);
+        setStructures(newStructures);
     }, []); // [] đảm bảo useEffect chỉ chạy một lần khi component được render lần đầu
 
     const handleSubmitForApproval = () => {
         if (checkDataValidity()) {
-            setExam_structureStatus(2); // Set exam_structure status to 2 (pending approval)
-            setModalIsOpen(true);
+        setExam_structureStatus(2); // Set exam_structure status to 2 (pending approval)
+        setModalIsOpen(true);
         } else {
             setErrorMessage('Vui lòng điền đầy đủ nội dung cho các chương và nội dung học phần');
         }
     };
 
-    const handleDescriptionChange = (value, index) => {
-        const newChapters = [...chapters];
-        newChapters[index].description = value;
-        setChapters(newChapters);
+    const handleScoreChange = (value, index) => {
+        const newStructures = [...structures];
+        newStructures[index].score = value;
+        setStructures(newStructures);
     };
+
+    const handleDifficultChange = (value, index) => {
+        const newStructures = [...structures];
+        newStructures[index].difficulty = value;
+        console.log ("dificult:", value)
+        setStructures(newStructures);
+    };
+
+    const handleChapterSelectChange = (selectedOptions, index) => {
+        // Lấy danh sách các tên chương từ mảng các option đã chọn
+        const selectedChapterNames = selectedOptions.map(option => option.label);
+
+        // Sao chép cấu trúc hiện tại của mảng structures
+        const newStructures = [...structures];
+
+        // Cập nhật mảng chapters của structure tại index được chỉ định
+        newStructures[index].chapters = selectedChapterNames;
+
+        // Cập nhật selectedChapters với các option đã chọn
+        setSelectedChapters(selectedOptions);
+        console.log ("selectedChapterNames:", selectedChapterNames)
+        // Cập nhật state với cấu trúc mới
+        setStructures(newStructures);
+    };
+
+
+    const fetchChapters = async (moduleId) => {
+        try {
+            const response = await getModuledetails(moduleId);
+            setChapters(response.chapters); // Lưu danh sách chương vào state
+        } catch (error) {
+            console.error('Error fetching chapters:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchExam_structureInfo = async () => {
             try {
@@ -69,6 +114,8 @@ const Exam_structure_addinfo = () => {
                     modulename: response.moduleName,
                     numofcredit: response.numofCredit,
                 });
+                fetchChapters(response.moduleId);
+
             } catch (error) {
                 console.error('Error fetching exam_structure info:', error);
             }
@@ -79,25 +126,30 @@ const Exam_structure_addinfo = () => {
 
     const handleSave = () => {
         if (checkDataValidity()) {
-            setModalIsOpen(true);
+        setModalIsOpen(true);
         } else {
             setErrorMessage('Vui lòng điền đầy đủ nội dung cho các chương và nội dung học phần');
         }
     };
     const checkDataValidity = () => {
-        // Kiểm tra xem nội dung của tất cả các chương và nội dung học phần có được điền không
-        if (exam_structuredescription.trim() === '') return false; // Kiểm tra nội dung học phần
-        for (let i = 0; i < chapters.length; i++) {
-            if (chapters[i].chaptername.trim() === '' || chapters[i].description.trim() === '') {
-                return false; // Trả về false nếu có ít nhất một chương không có đầy đủ nội dung
+        // Kiểm tra xem thời gian thi và hình thức thi có được điền đầy đủ không
+        if (exam_time.trim() === '' || exam_format.trim() === '') return false;
+    
+        // Kiểm tra xem mỗi cấu trúc câu hỏi có điền đầy đủ thông tin không
+        for (const structure of structures) {
+            if (structure.score.trim() === '' || structure.chapters.length === 0 || structure.difficulty.trim() === '') {
+                return false;
             }
         }
+    
         return true; // Trả về true nếu tất cả dữ liệu đều hợp lệ
     };
+    
     const handleConfirm = async () => {
         const data = {
-            exam_structuredescription: exam_structuredescription,
-            chapters: chapters,
+            structures: structures,
+            exam_time: exam_time,
+            exam_format: exam_format,
             exam_structurestatus: 1 // Đặt exam_structurestatus trong data trực tiếp thành 1
         };
         setErrorMessage('');
@@ -173,52 +225,44 @@ const Exam_structure_addinfo = () => {
                                     </Col>
                                 </Col>
                                 <Col md={3}>
-                                    <Form.Group as={Row} className="mb-3" controlId="moduleName">
+                                    <Form.Group as={Row} className="mb-3" controlId="exam_time">
                                         <Form.Label column md={5} sm={3}>Thời gian thi:</Form.Label>
                                         <Col sm={6} className="d-flex align-items-center">
                                             <Form.Control
                                                 type="text"
-                                                placeholder="Nhập tên học phần"
-                                                value={exam_structureInfo.modulename}
-                                                readOnly />
-                                                <span style={{fontSize:'10px', fontStyle:'italic'}}> (Phút)</span>
+                                                placeholder="Thời gian"
+                                                value={exam_time}
+                                                onChange={e => setExam_time(e.target.value)} />
+                                            <span style={{ fontSize: '10px', fontStyle: 'italic' }}> (Phút)</span>
                                         </Col>
                                     </Form.Group>
                                 </Col>
                                 <Col md={3}>
-                                    <Form.Group as={Row} className="mb-3" controlId="moduleName">
+                                    <Form.Group as={Row} className="mb-3" controlId="exam_format">
                                         <Form.Label column md={5} sm={3}>Hình thức thi:</Form.Label>
                                         <Col sm={7} className="d-flex align-items-center">
-                                            <Form.Control
-                                                type="text"
-                                                placeholder="Nhập tên học phần"
-                                                value={exam_structureInfo.modulename}
-                                                readOnly />
+                                            <Form.Select
+                                                className='form-select'
+                                                style={{ fontSize: '10px', padding: '8px', borderColor: 'black' }}
+                                                value={exam_structureInfo.exam_format}
+                                                onChange={e => setExam_format(e.target.value)}
+                                            >
+                                                <option value="Thực hành">Thực hành</option>
+                                                <option value="Trắc nghiệm">Trắc nghiệm</option>
+                                                <option value="Lý thuyết">Lý thuyết</option>
+                                            </Form.Select>
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col md={12} sm={12}>
-                                    <Form.Group as={Row} className="mb-3" controlId="exam_structuredescription">
-                                        <Form.Label column md={2} sm={3}>Nội dung:</Form.Label>
-                                        <Col md={8} sm={8} className="d-flex align-items-center">
-                                            <Form.Control
-                                                required
-                                                type="text"
-                                                placeholder="Nhập nội dung học phần"
-                                                value={exam_structuredescription}
-                                                onChange={e => setExam_structureDescription(e.target.value)} />
-                                        </Col>
-                                    </Form.Group>
-                                </Col >
                                 <Form.Label column md={2} sm={3}>Cấu trúc đề thi:</Form.Label>
                                 <Form.Label column md={2} sm={3}>Câu hỏi số:</Form.Label>
                                 <Form.Label column md={1} sm={3}>Số điểm:</Form.Label>
-                                <Form.Label column md={3} sm={3}>Chương -mục:</Form.Label>
+                                <Form.Label column md={3} sm={3}>Chương - mục:</Form.Label>
                                 <Form.Label column md={2} sm={3}>Độ khó:</Form.Label>
 
-                                {chapters.map((chapter, index) => (
+                                {structures.map((structure, index) => (
                                     <Col md={12} sm={12} key={index}>
-                                        <Form.Group as={Row} className="mb-3" controlId={`exam_structuredescription_${index}`}>
+                                        <Form.Group as={Row} className="mb-3" controlId={`structures_${index}`}>
 
                                             <Col md={2} sm={3}></Col>
                                             <Col md={2} sm={2} className="d-flex align-items-center">
@@ -235,33 +279,49 @@ const Exam_structure_addinfo = () => {
                                                     required
                                                     type="text"
                                                     placeholder={`Điểm`}
-                                                    value={chapter.description}
-                                                    onChange={(e) => handleDescriptionChange(e.target.value, index)} />
+                                                    value={structure.score}
+                                                    onChange={(e) => handleScoreChange(e.target.value, index)} />
                                             </Col>
                                             <Col md={3} sm={3} className="d-flex align-items-center">
-                                                <Form.Control
-                                                    required
-                                                    type="text"
-                                                    placeholder={`Cho phép chọn nhiều`}
-                                                    value={chapter.description}
-                                                    onChange={(e) => handleDescriptionChange(e.target.value, index)} />
+                                                <div style={{ width: "100%" }}>
+                                                    
+                                                    <MultiSelect
+                                                        options={chapters.map(chapter => ({ label: chapter.chaptername, value: chapter.chaptername, isSelected: selectedChapters.some(selectedChapter => selectedChapter.label === chapter.chaptername) }))}
+                                                        value={structure.chapters.map(chapter => ({ label: chapter, value: chapter }))}
+                                                        onChange={selectedOptions => handleChapterSelectChange(selectedOptions, index)} // Truyền index vào hàm handleChapterSelectChange
+                                                        labelledBy="Chọn chương"
+                                                        disableSearch={true}
+                                                        overrideStrings={{ "selectSomeItems": "Chọn chương" }}
+                                                        closeOnSelect={false}
+                                                        className="multiselect-fixed-width"
+                                                        keepSelectedItemsInList={true}
+                                                        isObject={false}
+                                                        showCheckbox={true}
+                                                    />
+                                                </div>
                                             </Col>
                                             <Col md={2} sm={2} className="d-flex align-items-center">
-                                                <Form.Control
-                                                    required
-                                                    type="text"
-                                                    placeholder={`Chọn độ khó`}
-                                                    value={chapter.description}
-                                                    onChange={(e) => handleDescriptionChange(e.target.value, index)} />
+                                                <Form.Select
+                                                    className='form-select'
+                                                    id="difficulty"
+                                                    style={{ fontSize: '10px', borderColor: 'black' }}
+                                                    onClick={() => getAllDifficult().then(response => setDifficults(response))}
+                                                    onChange={(e) => handleDifficultChange(e.target.value, index)}>
+                                                    <option value=""> Chọn độ khó</option>
+                                                    {difficults && difficults.map(difficult => (
+                                                        <option key={difficult._id} value={difficult.difficulttype}>{difficult.difficulttype}</option>
+                                                    ))}
+                                                </Form.Select>
+
                                             </Col>
-                                            {index === chapters.length - 1 && (
+                                            {index === structures.length - 1 && (
                                                 <Col md={1} sm={1} className="d-flex align-items-center">
-                                                    <Button variant="primary" onClick={handleAddChapter}>+</Button>
+                                                    <Button variant="primary" onClick={handleAddStructure}>+</Button>
                                                 </Col>
                                             )}
-                                            {chapters.length > 1 && (
+                                            {structures.length > 1 && (
                                                 <Col md={1} sm={1} className="d-flex align-items-center">
-                                                    <Button variant="danger" onClick={() => handleRemoveChapter(index)}>-</Button>
+                                                    <Button variant="danger" onClick={() => handleRemoveStructure(index)}>-</Button>
                                                 </Col>
                                             )}
                                         </Form.Group>
