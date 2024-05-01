@@ -140,13 +140,22 @@ thead tr:first-child th {
     padding: 8px;
 }
 .multiselect-fixed-width {
+    font-size: 10px;
     width: 100%;
 }
 
 .multiselect-fixed-width .ms-dropdown {
+    border-color: black;
     width: 100%;
 }
 
 .multiselect-fixed-width .ms-list {
     width: 100%;
+}
+
+.input-box {
+    border: 1px solid #838486; /* Màu border */
+    border-radius: 5px; /* Độ cong của border */
+    padding: 10px 10px 0 10px; /* Khoảng cách giữa border và nội dung bên trong */
+    margin-bottom: 10px; /* Khoảng cách giữa các box */
 }

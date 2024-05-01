@@ -10,7 +10,7 @@ import { getModuledetails } from '../../../api/module';
 import '../../../assets/css/table.css';
 
 
-const Exam_structure_addinfo = () => {
+const Exam_management_addnew = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const { exam_structureId } = useParams();
@@ -180,7 +180,7 @@ const Exam_structure_addinfo = () => {
                 <Col sm={12}>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Thêm thông tin cấu trúc đề thi</Card.Title>
+                            <Card.Title as="h5">Tạo đề thi mới</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <Row>
@@ -382,4 +382,4 @@ const Exam_structure_addinfo = () => {
     );
 };
 
-export default Exam_structure_addinfo;
+export default Exam_management_addnew;

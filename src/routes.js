@@ -145,14 +145,24 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/sample-page',
-        element: lazy(() => import('./views/extra/SamplePage'))
+        path: '/app/contest',
+        element: lazy(() => import('./views/admin/contest/Contest'))
       },
       {
-        path: '*',
         exact: 'true',
-        element: () => <Navigate to={BASE_URL} />
-      }
+        path: '/app/contest/contest_addnew',
+        element: lazy(() => import('./views/admin/contest/Contest_addnew'))
+      },
+      {
+        exact: 'true',
+        path: '/app/organize_exam',
+        element: lazy(() => import('./views/admin/organize_exam/Organize_exam'))
+      },
+      {
+        exact: 'true',
+        path: '/app/organize_exam/organize_exam_addnew',
+        element: lazy(() => import('./views/admin/organize_exam/Organize_exam_addnew'))
+      },
     ]
   },
   {
@@ -191,28 +201,33 @@ const routes = [
       },
       {
         exact: 'true',
-        path: '/basic/pagination',
-        element: lazy(() => import('./views/ui-elements/basic/BasicPagination'))
+        path: '/app/exam_structure/exam_structure_updateinfo/:exam_structureId',
+        element: lazy(() => import('./views/teacher/exam_structure/Exam_structure_updateinfo'))
       },
       {
         exact: 'true',
-        path: '/basic/collapse',
-        element: lazy(() => import('./views/ui-elements/basic/BasicCollapse'))
+        path: '/app/question_bank',
+        element: lazy(() => import('./views/teacher/question_bank/Question_bank'))
       },
       {
         exact: 'true',
-        path: '/basic/tabs-pills',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTabsPills'))
+        path: '/app/question_bank/question_bank_addnew',
+        element: lazy(() => import('./views/teacher/question_bank/Question_bank_addnew'))
       },
       {
         exact: 'true',
-        path: '/basic/typography',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTypography'))
+        path: '/app/question_bank/question_bank_update/:question_bankId',
+        element: lazy(() => import('./views/teacher/question_bank/Question_bank_update'))
       },
       {
         exact: 'true',
-        path: '/forms/form-basic',
-        element: lazy(() => import('./views/forms/FormsElements'))
+        path: '/app/exam_management',
+        element: lazy(() => import('./views/teacher/exam/Exam_management'))
+      },
+      {
+        exact: 'true',
+        path: '/app/exam_management/exam_management_addnew',
+        element: lazy(() => import('./views/teacher/exam/Exam_management_addnew'))
       },
       {
         exact: 'true',

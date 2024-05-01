@@ -90,10 +90,17 @@ const menuItems = {
             },
             {
               id: 'badges',
+              title: 'Tạo đợt thi',
+              type: 'item',
+              icon: 'feather icon-box',
+              url: '/admin/app/contest'
+            },
+            {
+              id: 'badges',
               title: 'Tổ chức thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/admin/app/grades'
+              url: '/admin/app/organize_exam'
             },
           ]
         },

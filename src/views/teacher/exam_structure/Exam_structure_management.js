@@ -106,7 +106,16 @@ const Exam_structure_management = () => {
                                             <th scope="row" className="center-column">{index + 1}</th>
                                             <td className="center-column">{exam_structure.moduleCode}</td>
                                             <td>{exam_structure.moduleName}</td>
-                                            <td className="center-column">{exam_structure.exam_structuredescription}</td>
+                                            <td className="center-column">
+                                                {exam_structure.exam_time && exam_structure.structures ? (
+                                                    <span>
+                                                        Thời gian làm bài: {exam_structure.exam_time} phút, gồm {exam_structure.structures.length} câu hỏi
+                                                    </span>
+                                                ) : (
+                                                    <span>Chưa có thông tin</span>
+                                                )}
+                                            </td>
+
                                             <td>{exam_structure.role}</td>
                                             <td className="center-column">{getStatusText(exam_structure.exam_structurestatus)}</td>
                                             <td className="center-column">

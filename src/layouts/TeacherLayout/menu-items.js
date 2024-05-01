@@ -44,7 +44,7 @@ const menuItems = {
               title: 'Quản lý ra đề thi',
               type: 'item',
               icon: 'feather icon-box',
-              url: '/teacher/app/'
+              url: '/teacher/app/exam_management'
             }
           ]
         },
