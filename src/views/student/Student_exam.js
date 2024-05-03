@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
 import './style.css';
 
@@ -37,7 +38,7 @@ const StudentExam = () => {
 
     const handleStartExam = () => {
         const userId = localStorage.getItem('userId');
-        const examId = '661762e58a431f830fef7f88';
+        const examId = '6633e8ac5927274aa4149efa';
 
         setIsLoading(true);
 

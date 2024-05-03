@@ -172,7 +172,6 @@ const Question_bank_addnew = () => {
             difficulty: selectedDifficultId,
             question_detail: questiondescription,
             inputs: [],
-            key: [], // Đảm bảo rằng key được khởi tạo như một mảng rỗng
             question_bankstatus: 1 // Giá trị mặc định
         };
     
@@ -191,20 +190,11 @@ const Question_bank_addnew = () => {
                 score_percentage: parseFloat(input.score_percentage)
             }));
         } else if (question_format === 'Trắc nghiệm') {
-            // Kiểm tra nếu không có key nào được nhập
-            if (keys.length === 0) {
-                setErrorMessage("Vui lòng nhập đáp án cho câu hỏi.");
-                return; // Dừng thực thi nếu mảng keys rỗng
-            }
-    
             // Kiểm tra nếu không có lựa chọn nào được nhập
             if (question_inputs.some(option => option.input.trim() === '')) {
                 setErrorMessage("Vui lòng nhập thông tin cho tất cả các lựa chọn.");
                 return; // Dừng thực thi nếu có lựa chọn trống
             }
-    
-            // Gán giá trị của biến keys cho trường key trong đối tượng questionData
-            questionData.key = keys;
     
             // Map các lựa chọn từ question_inputs vào questionData.inputs
             questionData.inputs = question_inputs.map(input => ({

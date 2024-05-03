@@ -32,22 +32,17 @@ export const getAllExam = async () => {
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
 
-export const createAutoExam = async (moduleId, numberOfExams = 1) => {
+export const deleteExambyModule = async (_id) => {
+    const response = await axios.delete(`${API_ENDPOINTS.EXAMS}/delete/${_id}`, {
+    });
+    return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
+};
+
+export const createAutoExam = async (moduleId, number = 1) => {
     try {
-        // Tạo một đối tượng dữ liệu để gửi đến API để tạo ra các đề tự động
-        const data = {
-            moduleId,
-            number: numberOfExams
-        };
-
-        // Gửi yêu cầu tạo các đề tự động đến API
-        const response = await axios.post(`${API_ENDPOINTS.EXAMS}/createauto/${moduleId}`, {data
-        });
-
-        // Trả về dữ liệu từ phản hồi của yêu cầu
+        const response = await axios.post(`${API_ENDPOINTS.EXAMS}/createauto/${moduleId}`, { number });
         return response.data;
     } catch (error) {
-        // Nếu có lỗi xảy ra trong quá trình gửi yêu cầu, xử lý lỗi ở đây
-        throw error;
+        throw error; // Xử lý lỗi ở phía gọi hàm
     }
 };

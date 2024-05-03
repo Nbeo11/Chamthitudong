@@ -163,6 +163,11 @@ const routes = [
         path: '/app/organize_exam/organize_exam_addnew',
         element: lazy(() => import('./views/admin/organize_exam/Organize_exam_addnew'))
       },
+      {
+        exact: 'true',
+        path: '/app/organize_exam/organize_exam_update/:organize_examId',
+        element: lazy(() => import('./views/admin/organize_exam/Organize_exam_update'))
+      },
     ]
   },
   {
@@ -271,55 +276,20 @@ const routes = [
         element: lazy(() => import('./views/student/module/Module_view'))
       },
       {
-        exact: 'true',
-        path: '/basic/breadcrumb',
-        element: lazy(() => import('./views/ui-elements/basic/BasicBreadcrumb'))
-      },
-      {
-        exact: 'true',
-        path: '/basic/pagination',
-        element: lazy(() => import('./views/ui-elements/basic/BasicPagination'))
-      },
-      {
-        exact: 'true',
-        path: '/basic/collapse',
-        element: lazy(() => import('./views/ui-elements/basic/BasicCollapse'))
-      },
-      {
-        exact: 'true',
-        path: '/basic/tabs-pills',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTabsPills'))
-      },
-      {
-        exact: 'true',
-        path: '/basic/typography',
-        element: lazy(() => import('./views/ui-elements/basic/BasicTypography'))
-      },
-      {
-        exact: 'true',
-        path: '/forms/form-basic',
-        element: lazy(() => import('./views/forms/FormsElements'))
-      },
-      {
-        exact: 'true',
-        path: '/tables/bootstrap',
-        element: lazy(() => import('./views/tables/BootstrapTable'))
-      },
-      {
-        exact: 'true',
-        path: '/charts/nvd3',
-        element: lazy(() => import('./views/charts/nvd3-chart'))
-      },
-      {
-        exact: 'true',
-        path: '/sample-page',
-        element: lazy(() => import('./views/extra/SamplePage'))
-      },
-      {
         path: '*',
         exact: 'true',
         element: () => <Navigate to={BASE_URL} />
       }
+    ]
+  },
+  {
+    path: '/studentexam/*',
+    routes: [
+      {
+        exact: 'true',
+        path: '/exam',
+        element: lazy(() => import('./views/student/Exam/Exam'))
+      },
     ]
   }
 ];

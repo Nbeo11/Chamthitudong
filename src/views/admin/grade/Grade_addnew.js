@@ -80,7 +80,8 @@ const Grade_addnew = () => {
                                                 id="course"
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
                                                 onClick={() => getAllCourse().then(response => setCourses(response))}
-                                                onChange={(e) => setSelectedCourseId(e.target.value)}>
+                                                onChange={(e) => {setSelectedCourseId(e.target.value);
+                                                    console.log(selectedCourseId)}}>
                                                 <option value=""> Chọn khóa học</option>
                                                 {courses && courses.map(course => (
                                                     <option key={course._id} value={course._id}>{course.coursename}</option>

@@ -71,6 +71,7 @@ const Question_bank = () => {
             console.error('Error updating question_bank status:', error);
         }
     };
+    
 
     return (
         <React.Fragment>
@@ -88,6 +89,7 @@ const Question_bank = () => {
                                 <thead>
                                     <tr>
                                         <th>STT</th>
+                                        <th>Học phần</th>
                                         <th>Loại câu hỏi</th>
                                         <th>Chương - mục</th>
                                         <th>Nội dung câu hỏi</th>
@@ -99,6 +101,7 @@ const Question_bank = () => {
                                     {question_banks && question_banks.map((question_bank, index) => (
                                         <tr key={question_bank._id}>
                                             <th scope="row" className="center-column">{index + 1}</th>
+                                            <td className="center-column">{question_bank.moduleName}</td>
                                             <td className="center-column">{question_bank.question_format}</td>
                                             <td>
                                                 {question_bank.chapters.map((chapter, index) => (

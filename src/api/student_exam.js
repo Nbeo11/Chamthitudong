@@ -14,6 +14,12 @@ export const getStudent_examdetails = async (_id) => {
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
 };
 
+export const getByModuleandStudentId = async (moduleId, studentId) => {
+    const response = await axios.get(`${API_ENDPOINTS.STUDENT_EXAMS}/${moduleId}/${studentId}/studentexam`, {
+    });
+    return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
+};
+
 export const updateStudent_exam = async (_id, data) => {
     const response = await axios.put(`${API_ENDPOINTS.STUDENT_EXAMS}/${_id}`,data);
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu

@@ -3,168 +3,147 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Modal from 'react-modal';
-import { getAllContest, getContestdetails } from '../../../api/contest';
+import { useParams } from 'react-router-dom';
+import { getContestdetails } from '../../../api/contest';
 import { getExam_structurebyModuleId } from '../../../api/exam_structure';
 import { getGradebyOlogyId } from '../../../api/grade';
-import { getAllModule } from '../../../api/module';
 import { getAllOlogy } from '../../../api/ology';
-import { createOrganize_exam } from '../../../api/organize_exam';
-import '../../../assets/css/table.css';
+import { getOrganize_examdetails, updateOrganize_exam } from '../../../api/organize_exam';
 
-const Organize_exam_addnew = () => {
-    const [contests, setContests] = useState([]);
-    const [selectedContestId, setSelectedContestId] = useState('');
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [requiredFieldsFilled, setRequiredFieldsFilled] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [start_time, setStart_time] = useState('');
+const Organize_exam_update = () => {
+    const { organize_examId } = useParams();
+    const [organize_examInfo, setOrganize_examInfo] = useState({
+        contestId: '',
+        moduleId: '',
+        time_countdown: '',
+        details: []
+    });
+    // const [errorMessage] = useState('');
     const [selectedShift, setSelectedShift] = useState('');
-    const [end_time, setEnd_time] = useState('');
     const [time_countdown, setTime_countdown] = useState('');
-    const [modules, setModules] = useState([]);
-    const [selectedModuleId, setSelectedModuleId] = useState('');
     const [details, setDetails] = useState([{ ologyId: '', gradeId: '', exam_date: '', exam_start: '', exam_end: '', room: '' }]);
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-    const [selectedOlogyId, setSelectedOlogyId] = useState('');
+    // const [selectedOlogyId, setSelectedOlogyId] = useState('');
     const [ologies, setOlogies] = useState([]);
     const [grades, setGrades] = useState([]);
+    const [contestInfo, setContestInfo] = useState({});
 
-
-    const handleAddTestcase = () => {
-        const newDetail = {
-            ologyId: '',
-            gradeId: '',
-            exam_date: '',
-            exam_start: '',
-            exam_end: '',
-            room: ''
-        };
+    const handleAddDetail = () => {
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: [...prevState.details, { ologyId: '', gradeId: '', exam_date: '', exam_start: '', exam_end: '', room: '' }]
+        }));
         console.log('Adding input:', newDetail); // Log the new input being added
         setDetails([...details, newDetail]);
     };
 
-    const handleRemoveTestcase = (index) => {
-        console.log('Removing input at index:', index); // Log the index of the input being removed
-        if (details.length === 1) {
-            setDetails([{ ologyId: '', gradeId: '', exam_date: '', exam_start: '', exam_end: '', room: '' }]);
-        } else {
-            const newDetails = [...details];
-            newDetails.splice(index, 1);
-            setDetails(newDetails);
-        }
+    const handleRemoveDetail = (index) => {
+        const newDetails = [...organize_examInfo.details];
+        newDetails.splice(index, 1);
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: newDetails
+        }));
     };
 
     const handleOlogyIdChange = (value, index) => {
-        const newDetails = [...details];
+        const newDetails = [...organize_examInfo.details];
         newDetails[index].ologyId = value;
-        setSelectedOlogyId(value);
-        console.log(selectedOlogyId)
-        setDetails(newDetails);
+        // setSelectedOlogyId(value);
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: newDetails
+        }));
     };
 
-    const handleGradeIdChange = (value, index) => {
+    const handleGradeIdChange = (e, index) => {
         const newDetails = [...details];
-        newDetails[index].gradeId = value;
-        setDetails(newDetails);
+        newDetails[index].gradeId = e;
+        console.log('gradeId: ', e)
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: newDetails
+        }));
     };
-
-    const subtractHoursFromDate = (date) => {
-        const adjustedDate = new Date(date);
-        adjustedDate.setUTCHours(date.getUTCHours() - 7);
-        return adjustedDate;
-    };
-    
 
     const handleExam_dateChange = (value, index) => {
-        // Trừ đi 7 giờ từ ngày thi
-        const adjustedDate = subtractHoursFromDate(value);
-    
-        // Cập nhật ngày thi vào details
         const newDetails = [...details];
-        newDetails[index].exam_date = adjustedDate;
-        setDetails(newDetails);
+        newDetails[index].exam_date = value;
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: newDetails
+        }));
     };
-    
 
     const handleRoomChange = (value, index) => {
         const newDetails = [...details];
         newDetails[index].room = value;
-        setDetails(newDetails);
+        setOrganize_examInfo(prevState => ({
+            ...prevState,
+            details: newDetails
+        }));
     };
+    useEffect(() => {
+        const fetchOrganize_examInfo = async () => {
+            try {
+                const response = await getOrganize_examdetails(organize_examId);
+                console.log(response)
+                setOrganize_examInfo(response);
+            } catch (error) {
+                console.error('Error fetching organize_exam details:', error);
+            }
+        };
 
-    const handleShiftChange = (value, index) => {
-        const newDetails = [...details];
-        newDetails[index].shift = value; // Cập nhật trường shift cho chi tiết tương ứng
-        setDetails(newDetails); // Cập nhật danh sách chi tiết lịch thi mới
-        setSelectedShift(value); // Cập nhật selectedShift
-    };
+        fetchOrganize_examInfo();
+    }, [organize_examId]);
 
+    useEffect(() => {
+        setOrganize_examInfo(prevOrganize_examInfo => {
+            const updatedDetails = prevOrganize_examInfo.details.map((detail) => {
+                return detail;
+            });
+            return {
+                ...prevOrganize_examInfo,
+                details: updatedDetails
+            };
+        });
+    }, [organize_examInfo.details]);
 
     useEffect(() => {
         const fetchContestDetails = async () => {
             try {
-                if (selectedContestId) {
-                    const response = await getContestdetails(selectedContestId);
-                    setStart_time(response.start_time)
-                    setEnd_time(response.end_time)
+                if (organize_examInfo.contestId) {
+                    const response = await getContestdetails(organize_examInfo.contestId);
+                    setContestInfo(response);
                 }
             } catch (error) {
-                console.error('Error fetching chapters:', error);
+                console.error('Error fetching contest details:', error);
             }
         };
 
-
-        // Kiểm tra nếu đã có selectedContestId từ trước, gọi API để lấy danh sách chapters
-        if (selectedContestId) {
+        if (organize_examInfo.contestId) {
             fetchContestDetails();
         }
-    }, [selectedContestId]);
+    }, [organize_examInfo.contestId]);
+
 
     useEffect(() => {
         const fetchstructureBymoduleId = async () => {
             try {
-                if (selectedModuleId) {
-                    const response = await getExam_structurebyModuleId(selectedModuleId);
+                if (organize_examInfo.moduleId) {
+                    const response = await getExam_structurebyModuleId(organize_examInfo.moduleId);
                     setTime_countdown(response.exam_time || 'Chưa cập nhập');
                 }
             } catch (error) {
-                console.error('Error fetching chapters:', error);
+                console.error('Error fetching exam structure:', error);
             }
         };
-        console.log(selectedModuleId)
 
-        // Kiểm tra nếu đã có selectedModuleId từ trước, gọi API để lấy danh sách chapters
-        if (selectedModuleId) {
+        if (organize_examInfo.moduleId) {
             fetchstructureBymoduleId();
         }
-    }, [selectedModuleId]);
+    }, [organize_examInfo.moduleId]);
 
-
-
-
-    const handleSave = () => {
-        const requiredFields = [selectedContestId];
-        const allFieldsFilled = requiredFields.every(field => field !== '');
-
-        if (allFieldsFilled) {
-            setModalIsOpen(true);
-            setRequiredFieldsFilled(true);
-            setErrorMessage('');
-        } else {
-            setErrorMessage("Vui lòng chọn đầy đủ các trường yêu cầu.");
-        }
-    };
-
-    const subtractHours = (date, hours) => {
-        const modifiedDate = new Date(date);
-        modifiedDate.setHours(modifiedDate.getHours() - hours);
-        return modifiedDate;
-    };
-
-
-    const handleConfirm = async () => {
-
+    const handleSave = async () => {
         const shiftStartTime = {
             1: { start: '07:00', end: '09:00' },
             2: { start: '09:00', end: '11:00' },
@@ -173,53 +152,31 @@ const Organize_exam_addnew = () => {
         };
 
         const organize_examdata = {
-            contestId: selectedContestId,
-            moduleId: selectedModuleId,
-            time_countdown: time_countdown,
+            contestId: organize_examInfo.contestId,
+            moduleId: organize_examInfo.moduleId,
+            time_countdown: organize_examInfo.time_countdown,
             details: details.map(detail => {
-                const selectedShiftTime = shiftStartTime[detail.shift]; // Lấy thời gian bắt đầu và kết thúc của ca thi được chọn
+                const selectedShiftTime = shiftStartTime[detail.shift];
                 const examStartTime = new Date(detail.exam_date);
                 const examEndTime = new Date(detail.exam_date);
 
-                // Thiết lập giờ bắt đầu và kết thúc dựa trên exam_date và shiftStartTime
                 examStartTime.setUTCHours(selectedShiftTime.start.split(':')[0], selectedShiftTime.start.split(':')[1]);
                 examEndTime.setUTCHours(selectedShiftTime.end.split(':')[0], selectedShiftTime.end.split(':')[1]);
 
-                const adjustedStartTime = subtractHours(examStartTime, 7);
-                const adjustedEndTime = subtractHours(examEndTime, 7);
-
                 return {
                     ...detail,
-                    exam_start: adjustedStartTime,
-                    exam_end: adjustedEndTime,
-                    shift: selectedShift
+                    exam_start: examStartTime,
+                    exam_end: examEndTime
                 };
             })
         };
 
-
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-            setShowSuccessMessage(false);
-        }, 3000);
-
         try {
-            // Gửi dữ liệu lên server thông qua API
-            const response = await createOrganize_exam(organize_examdata);
+            const response = await updateOrganize_exam(organize_examId, organize_examdata);
             console.log('API Response:', response);
-            // Đóng modal và chuyển hướng trang
-            setModalIsOpen(false);
         } catch (error) {
             console.error('API Error:', error);
-            // Đóng modal nếu có lỗi xảy ra
-            setModalIsOpen(false);
         }
-    };
-
-
-
-    const handleCancel = () => {
-        setModalIsOpen(false);
     };
 
     const formatDate = (dateString) => {
@@ -230,6 +187,7 @@ const Organize_exam_addnew = () => {
         return `${day}-${month}-${year}`;
     };
 
+    // Các hàm xử lý sự kiện khác...
 
     return (
         <React.Fragment>
@@ -237,7 +195,7 @@ const Organize_exam_addnew = () => {
                 <Col sm={12}>
                     <Card>
                         <Card.Header>
-                            <Card.Title as="h5">Thêm mới lịch thi</Card.Title>
+                            <Card.Title as="h5">Cập nhật thông tin lịch thi</Card.Title>
                         </Card.Header>
                         <Card.Body>
                             <Row>
@@ -245,23 +203,20 @@ const Organize_exam_addnew = () => {
                                     <Form.Group as={Row} className="mb-3" controlId="contestId">
                                         <Form.Label column md={4} sm={4}>Chọn đợt thi: </Form.Label>
                                         <Col md={8} sm={8} className="d-flex align-items-center">
-                                            <Form.Select
+                                            <Form.Control
                                                 className='form-select'
                                                 id="contest"
+                                                readOnly
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
-                                                onClick={() => getAllContest().then(response => setContests(response))}
-                                                onChange={(e) => setSelectedContestId(e.target.value)}>
-                                                <option value=""> Chọn đợt thi</option>
-                                                {contests && contests.map(contest => (
-                                                    <option key={contest._id} value={contest._id}>Đợt {contest.contest_name}, {contest.semester}, năm học {contest.scholastic}</option>
-                                                ))}
-                                            </Form.Select>
-                                            <span className="text-danger">*</span>
+                                                value={`Đợt ${contestInfo.contest_name}, ${contestInfo.semester}, năm học ${contestInfo.scholastic}`}
+                                            >
+
+                                            </Form.Control>
                                         </Col>
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}></Col>
-                                {selectedContestId && (
+                                {organize_examInfo.contestId && (
                                     <>
                                         <Col md={6} sm={10} >
                                             <Form.Group as={Row} className="mb-3" controlId="contestId">
@@ -270,7 +225,7 @@ const Organize_exam_addnew = () => {
                                                     <Form.Control
                                                         type="text"
                                                         placeholder="Nhập thông tin mã học phần"
-                                                        value={formatDate(start_time)}
+                                                        value={formatDate(contestInfo.start_time)}
                                                         readOnly />
                                                 </Col>
                                             </Form.Group>
@@ -283,7 +238,7 @@ const Organize_exam_addnew = () => {
                                                     <Form.Control
                                                         type="text"
                                                         placeholder="Nhập thông tin mã học phần"
-                                                        value={formatDate(end_time)}
+                                                        value={formatDate(contestInfo.end_time)}
                                                         readOnly />
                                                 </Col>
                                             </Form.Group>
@@ -292,19 +247,15 @@ const Organize_exam_addnew = () => {
                                 <Col md={6} sm={10} >
                                     <Form.Group as={Row} className="mb-3" controlId="contestId">
                                         <Form.Label column md={4} sm={4}>Học phần: </Form.Label>
-                                        <Col md={5} sm={5} className="d-flex align-items-center">
-                                            <Form.Select
+                                        <Col md={4} sm={4} className="d-flex align-items-center">
+                                            <Form.Control
                                                 className='form-select'
-                                                id="moduley"
+                                                id="module"
+                                                readOnly
                                                 style={{ fontSize: '10px', borderColor: 'black' }}
-                                                onClick={() => getAllModule().then(response => setModules(response))}
-                                                onChange={(e) => setSelectedModuleId(e.target.value)}>
-                                                <option value=""> Chọn học phần thi</option>
-                                                {modules && modules.map(module => (
-                                                    <option key={module._id} value={module._id}>{module.modulename}</option>
-                                                ))}
-                                            </Form.Select>
-                                            <span className="text-danger">*</span>
+                                                value={organize_examInfo.moduleName}
+                                            >
+                                            </Form.Control>
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -327,12 +278,12 @@ const Organize_exam_addnew = () => {
 
                                 <div>
                                     <Form.Label column md={2} sm={3}>Lịch thi:</Form.Label>
-                                    {details.map((detail, index) => (
+                                    {organize_examInfo.details && organize_examInfo.details.map((detail, index) => (
                                         <Col md={12} sm={12} key={index}>
                                             <div className="input-box"> {/* Thêm lớp CSS cho box */}
                                                 <Form.Group as={Row} className="mb-3" controlId={`details_${index}`}>
                                                     <Col md={4} sm={8}>
-                                                        <Form.Group as={Row} className="mb-3" controlId="exam_date">
+                                                        <Form.Group as={Row} className="mb-3" controlId="ologyId">
                                                             <Form.Label column md={6} sm={5}>Chuyên ngành: </Form.Label>
                                                             <Col md={6} sm={6} className="d-flex align-items-center">
                                                                 <Form.Select
@@ -340,8 +291,8 @@ const Organize_exam_addnew = () => {
                                                                     id="ology"
                                                                     style={{ fontSize: '10px', borderColor: 'black' }}
                                                                     onClick={() => getAllOlogy().then(response => setOlogies(response))}
+                                                                    value={detail.ologyId}
                                                                     onChange={(e) => handleOlogyIdChange(e.target.value, index)}>
-                                                                    <option value=""> Chọn ngành học</option>
                                                                     {ologies && ologies.map(ology => (
                                                                         <option key={ology._id} value={ology._id}>{ology.ologyname}</option>
                                                                     ))}
@@ -352,28 +303,21 @@ const Organize_exam_addnew = () => {
                                                     <Col md={1}></Col>
 
                                                     <Col md={3} sm={8}>
-                                                        <Form.Group as={Row} className="mb-3" controlId="exam_date">
+                                                        <Form.Group as={Row} className="mb-3" controlId="gradeId">
                                                             <Form.Label column md={5} sm={5}>Chọn lớp: </Form.Label>
                                                             <Col md={6} sm={6} className="d-flex align-items-center">
-                                                                {selectedOlogyId ? (
-                                                                    <Form.Select
-                                                                        className='form-select'
-                                                                        id="grade"
-                                                                        style={{ fontSize: '10px', borderColor: 'black' }}
-                                                                        onClick={() => getGradebyOlogyId(selectedOlogyId).then(response => setGrades(response))}
-                                                                        onChange={(e) => handleGradeIdChange(e.target.value, index)}>
-                                                                        <option value=""> Chọn lớp</option>
-                                                                        {grades && grades.map(grade => (
-                                                                            <option key={grade._id} value={grade._id}>{grade.gradename}</option>
-                                                                        ))}
-                                                                    </Form.Select>
-                                                                ) : (
-                                                                    <Form.Control
-                                                                        type="text"
-                                                                        value="Chọn lớp"
-                                                                        readOnly
-                                                                    />
-                                                                )}
+
+                                                                <Form.Select
+                                                                    className='form-select'
+                                                                    id="gradeId"
+                                                                    style={{ fontSize: '10px', borderColor: 'black' }}
+                                                                    onClick={() => getGradebyOlogyId(detail.ologyId).then(response => setGrades(response))}
+                                                                    value={detail.gradeName}
+                                                                    onChange={(e) => handleGradeIdChange(e, index)}>
+                                                                    {grades && grades.map(grade => (
+                                                                        <option key={grade._id} value={grade._id}>{grade.gradename}</option>
+                                                                    ))}
+                                                                </Form.Select>
                                                             </Col>
                                                         </Form.Group>
                                                     </Col>
@@ -406,14 +350,19 @@ const Organize_exam_addnew = () => {
                                                                     className='form-select'
                                                                     id="shift"
                                                                     style={{ fontSize: '10px', borderColor: 'black' }}
-                                                                    onChange={(e) => handleShiftChange(e.target.value, index)}> {/* Gọi hàm handleShiftChange khi có thay đổi */}
+                                                                    value={selectedShift} // Gán giá trị của ca thi được chọn
+                                                                    onChange={(e) => {
+                                                                        setSelectedShift(e.target.value, index); // Lưu giá trị ca thi được chọn vào state
+                                                                        const newDetails = [...details];
+                                                                        newDetails[index].shift = e.target.value; // Cập nhật trường shift cho mỗi mục lịch thi
+                                                                        setDetails(newDetails); // Cập nhật danh sách chi tiết lịch thi mới
+                                                                    }}>
                                                                     <option value=""> Chọn ca thi</option>
                                                                     <option value="1">Ca 1 (7h - 9h)</option>
                                                                     <option value="2">Ca 2 (9h - 11h)</option>
                                                                     <option value="3">Ca 3 (13h - 15h)</option>
                                                                     <option value="4">Ca 4 (15h - 17h)</option>
                                                                 </Form.Select>
-
                                                                 <span className="text-danger">*</span>
                                                             </Col>
                                                         </Form.Group>
@@ -435,12 +384,12 @@ const Organize_exam_addnew = () => {
 
                                                     {index === details.length - 1 && (
                                                         <Col md={1} sm={1} className="d-flex align-items-center">
-                                                            <Button variant="primary" onClick={handleAddTestcase}>+</Button>
+                                                            <Button variant="primary" onClick={handleAddDetail}>+</Button>
                                                         </Col>
                                                     )}
                                                     {details.length > 1 && (
                                                         <Col md={1} sm={1} className="d-flex align-items-center">
-                                                            <Button variant="danger" onClick={() => handleRemoveTestcase(index)}>-</Button>
+                                                            <Button variant="danger" onClick={() => handleRemoveDetail(index)}>-</Button>
                                                         </Col>
                                                     )}
                                                 </Form.Group>
@@ -450,7 +399,7 @@ const Organize_exam_addnew = () => {
                                     ))}
                                 </div>
 
-                                {errorMessage && (
+                                {/* {errorMessage && (
                                     <div className="alert alert-danger" role="alert">
                                         {errorMessage}
                                     </div>
@@ -459,7 +408,7 @@ const Organize_exam_addnew = () => {
                                     <div className="alert alert-success" role="alert">
                                         Dữ liệu đã được ghi thành công!
                                     </div>
-                                )}
+                                )} */}
                                 <Col md={2} sm={3}></Col>
                                 <Col >
                                     <Button variant="primary" onClick={handleSave}>Ghi dữ liệu</Button>
@@ -472,38 +421,10 @@ const Organize_exam_addnew = () => {
                         </Card.Body>
                     </Card>
                 </Col>
-            </Row >
-            <Modal
-                isOpen={modalIsOpen && requiredFieldsFilled}
-                onRequestClose={() => setModalIsOpen(false)}
-                style={{
-                    content: {
-                        top: '50%',
-                        left: '50%',
-                        right: 'auto',
-                        bottom: 'auto',
-                        marginRight: '-50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '50vw',
-                        maxHeight: '70vh',
-                        overflow: 'auto',
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        background: 'rgb(229 229 229)',
-                        color: 'black',
-                        borderColor: 'black'
-                    }
-                }}
-            >
-                <h4>Xác nhận thêm lịch thi</h4>
-                <div>
-                    <p>Bạn có muốn thêm lịch thi này không?</p>
-                    <Button onClick={handleConfirm}>Xác nhận</Button>
-                    <Button className='back-button' onClick={handleCancel}>Hủy</Button>
-                </div>
-            </Modal>
-        </React.Fragment >
+            </Row>
+        </React.Fragment>
     );
+
 };
 
-export default Organize_exam_addnew;
+export default Organize_exam_update;
