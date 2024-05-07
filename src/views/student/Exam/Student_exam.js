@@ -1,16 +1,16 @@
 /* eslint-disable prettier/prettier */
-// exam.js
+// Student_exam.js
 import React from 'react';
-import Container from './Container';
+import ExamContainer from './Exam_container';
 import Header from './Header';
 
-const Exam = () => {
+const Student_exam = () => {
     return (
         <div>
             <Header /> {/* Gọi component Header */}
-            <Container /> {/* Gọi component Container */}
+            <ExamContainer /> {/* Gọi component Container */}
         </div>
     );
 };
 
-export default Exam;
+export default Student_exam;

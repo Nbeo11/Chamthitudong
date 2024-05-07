@@ -109,7 +109,7 @@ const Student_management = () => {
         try {
             await deleteStudent(selectedStudentId);
             // Cập nhật danh sách sinh viên sau khi xóa thành công
-            fetchStudents(selectedGradeId);
+            fetchAllStudents()
             setModalIsOpen(false); // Move setModalIsOpen after fetchStudents
         } catch (error) {
             console.error('Error deleting student:', error);

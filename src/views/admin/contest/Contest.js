@@ -67,7 +67,7 @@ const Contest = () => {
             const data = {
                 scholastic: newScholastic,
                 semester: newSemester,
-                contest_name: contest_name,
+                contest_name: newContest_name,
                 start_time: newStart_time,
                 end_time: newEnd_time,
             };

@@ -4,33 +4,25 @@ import logo from '../../../assets/images/logo.png';
 import './header.css';
 
 const Header = () => {
+    const username = localStorage.getItem('userName')
     return (
-        <div className="header">
-            <div className='menu-logo'>
-                <div style={{ backgroundColor: 'white' }}>
-                    <img src={logo} alt="Logo" />
+        <>
+            <div className="header-first">
+                <div className='menu-logo'>
+                    <div style={{ backgroundColor: 'white' }}>
+                        <img src={logo} alt="Logo" />
+                    </div>
+                    <p style={{marginBottom:0}}>HỆ THỐNG THI TỰ ĐỘNG -TMS</p>
                 </div>
-
             </div>
-        </div>
+            <div className='title'>
+                <p>Học phần: Lập trình C</p>
+                <p>Thí sinh: {username}</p>
+            </div>
+        </>
     );
 };
-const Title = () => {
-    return (
-        <div>
-            <p>Học phần</p>
-        </div>
-    );
-}
-
-const HeaderandTitle =() => {
-    return (
-        <div>
-            <Header/>
-            <Title/>
-        </div>
-    );
-}
 
 
-export default HeaderandTitle
+
+export default Header

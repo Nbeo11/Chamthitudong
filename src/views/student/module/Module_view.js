@@ -5,7 +5,6 @@ import Modal from 'react-modal';
 
 import { getGradedetails } from '../../../api/grade';
 import { getModuledetails } from '../../../api/module';
-import { getByModuleandStudentId } from '../../../api/student_exam';
 import '../../../assets/css/table.css';
 import './style.css';
 
@@ -72,9 +71,9 @@ const Module = () => {
     const handleStartExam = async () => {
         try {
             // Gọi hàm deletedifficult với tham số _id để xóa difficulty
-            await getByModuleandStudentId(selectedModuleId, studentId);
+            // await getByModuleandStudentId(selectedModuleId, studentId);
             setModalIsOpen(false); // Đóng hộp thoại sau khi xóa thành công
-            setDifficults(await getAllDifficult());
+            window.location.href = `/studentexam/exam/${selectedModuleId}/${studentId}`;
         } catch (error) {
             console.error('Error deleting difficulty:', error);
         }

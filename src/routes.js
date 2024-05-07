@@ -287,9 +287,14 @@ const routes = [
     routes: [
       {
         exact: 'true',
-        path: '/exam',
+        path: '/exam/:moduleId/:studentId',
         element: lazy(() => import('./views/student/Exam/Exam'))
       },
+      {
+        exact: 'true',
+        path: '/exam/:student_examId',
+        element: lazy(() => import('./views/student/Exam/Student_exam'))
+      }
     ]
   }
 ];
