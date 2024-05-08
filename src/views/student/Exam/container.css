@@ -92,3 +92,16 @@ body {
     border: 1px solid #ddd;
     padding: 4px;
 }
+
+.loading-container {
+    position: relative;
+    display: inline-block;
+}
+
+.loading-spinner {
+    position: absolute;
+    font-size: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px; /* Điều chỉnh khoảng cách giữa spinner và nút button */
+}

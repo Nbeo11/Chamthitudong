@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Editor } from '@monaco-editor/react';
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, Table } from 'react-bootstrap';
 import { useParams } from 'react-router-dom'; // Import useParams
@@ -7,6 +8,7 @@ import { getByModuleandStudentId, updateStudent_exam } from '../../../api/studen
 import { createStudentcode, getStudentcodebyStudent_examandQuestion, updateStudentcode } from '../../../api/studentcode';
 import './container.css';
 
+
 const Container = () => {
     const { moduleId, studentId } = useParams();
     const [selectedQuestion, setSelectedQuestion] = useState(null);
@@ -14,11 +16,13 @@ const Container = () => {
     const [questionDetail, setQuestionDetail] = useState('');
     const [student_examId, setStudent_examId] = useState('');
     const [sourceCode, setSourceCode] = useState('');
+    const [exam_end, setexam_end] = useState('');
     const [output, setOutput] = useState([]);
     const [scoregot, setScoregot] = useState('');
     const [executionTime, setExecutionTime] = useState('');
     const [checkboxState, setCheckboxState] = useState({
     });
+    const [loading, setLoading] = useState(false);
 
     const [remainingTime, setRemainingTime] = useState(0); // State for remaining time
 
@@ -58,38 +62,54 @@ const Container = () => {
         const fetchData = async () => {
             try {
                 const data = await getByModuleandStudentId(moduleId, studentId);
+                const currentDateTime = new Date(); // Lấy thời điểm hiện tại
+    
+                // Kiểm tra nếu trạng thái hiện tại của kỳ thi là 1 (đang chờ), thì cập nhật start_examAt
+                if (data.student_examstatus === 1) {
+                    const updatedData = { ...data, start_examAt: currentDateTime, student_examstatus: 2 }; // Cập nhật start_examAt và student_examstatus
+                    await updateStudent_exam(data._id, updatedData); // Cập nhật dữ liệu kỳ thi của sinh viên với start_examAt và student_examstatus mới
+                } else {
+                    // Nếu trạng thái không phải là 1, chỉ cập nhật student_examstatus
+                    const updatedData = { ...data, student_examstatus: 2 }; // Chỉ cập nhật student_examstatus
+                    await updateStudent_exam(data._id, updatedData); // Cập nhật dữ liệu kỳ thi của sinh viên với student_examstatus mới
+                }
+    
                 setStudent_examId(data._id);
-                const questiondata = data.question;
-                setQuestionInfo(questiondata);
-
-                // Update student_examstatus to 2
-                const updatedData = { ...data, student_examstatus: 2 };
-                // Assuming there's an update function in your API to update student exam data
-                await updateStudent_exam(data._id, updatedData);
-
-                // Start countdown timer
-                const countdownSeconds = data.time_countdown * 60; // Convert minutes to seconds
-                startCountdown(countdownSeconds);
+                setQuestionInfo(data.question);
+    
+                // Chỉ bắt đầu đếm ngược nếu trạng thái của kỳ thi là 1 (đang chờ)
+                if (data.student_examstatus === 2) {
+                    const elapsedTimeInSeconds = Math.floor((currentDateTime - new Date(data.start_examAt)) / 1000);
+                    const remainingSeconds = (data.time_countdown * 60) - elapsedTimeInSeconds;
+                    const time_countdown2 = Math.max(0, remainingSeconds / 60); // Convert seconds to minutes, ensure không âm
+    
+                    const countdownSeconds = time_countdown2 * 60; // Convert minutes to seconds
+                    startCountdown(countdownSeconds);
+    
+                    // Tiến hành các hành động với time_countdown2
+                }
             } catch (error) {
                 console.error('Error fetching module info:', error);
             }
         };
-
+    
         fetchData();
         return () => {
             // Cleanup code if needed
         };
     }, [moduleId, studentId]);
+    
 
     const startCountdown = (seconds) => {
         let timeLeft = seconds;
         const countdownInterval = setInterval(() => {
             timeLeft--;
             setRemainingTime(timeLeft);
-            if (timeLeft === 0) {
-                clearInterval(countdownInterval); // Stop the countdown when time is up
-                // Implement logic for when time is up (submit exam or show warning)
-            }
+            const currentTime = new Date();
+        if (timeLeft === 0 || currentTime >= new Date(exam_end)) {
+            clearInterval(countdownInterval);
+            handleFinishExam(); // Call handleFinishExam when time is up or current time equals exam_end
+        }
         }, 1000);
     };
 
@@ -97,24 +117,33 @@ const Container = () => {
         const fetchData = async () => {
             try {
                 const existingCode = await getStudentcodebyStudent_examandQuestion(student_examId, selectedQuestion);
-
+    
                 if (existingCode) {
-                    console.log("existingCode: ", existingCode)
+                    console.log("existingCode: ", existingCode);
+
                     setSourceCode(existingCode.sourceCode)
+                    setexam_end(existingCode.exam_end)
                     setOutput(existingCode.output)
                     setScoregot(existingCode.scoregot)
                     setExecutionTime(existingCode.executionTime)
+                } else {
+                    setSourceCode("")
+                    setexam_end("")
+                    setOutput("")
+                    setScoregot("")
+                    setExecutionTime("")
                 }
             } catch (error) {
                 console.error('Error fetching module info:', error);
             }
         };
-
+    
         fetchData();
         return () => {
             // Cleanup code if needed
         };
     }, [student_examId, selectedQuestion]); // Effect sẽ chạy lại khi id hoặc studentId thay đổi
+    
 
     useEffect(() => {
         // Kiểm tra xem questionInfo có dữ liệu không trước khi lấy question_bankId của câu hỏi đầu tiên
@@ -159,6 +188,8 @@ const Container = () => {
     }, [selectedQuestion]); // Effect này sẽ chạy lại khi selectedQuestion thay đổi
 
     const handleCheckCode = async () => {
+        setLoading(true); // Bắt đầu hiển thị loading
+
         const data = {
             question_bankId: selectedQuestion,
             student_examId: student_examId,
@@ -176,10 +207,19 @@ const Container = () => {
                 const response = await updateStudentcode(existingCode._id, data);
                 console.log('API Response for update:', response);
             }
+
+            // Cập nhật kết quả output sau khi kiểm tra hoàn tất
+            const updatedCode = await getStudentcodebyStudent_examandQuestion(student_examId, selectedQuestion);
+            setOutput(updatedCode.output);
+            setScoregot(updatedCode.scoregot);
+            setExecutionTime(updatedCode.executionTime);
         } catch (error) {
             console.error('API Error:', error);
+        } finally {
+            setLoading(false); // Dừng hiển thị loading khi hoàn thành
         }
     }
+
 
     const continueWithOtherFunction = async (data) => {
         try {
@@ -193,9 +233,10 @@ const Container = () => {
     const handleFinishExam = async () => {
         try {
             const currentStudentExam = await getByModuleandStudentId(moduleId, studentId);
+            const currentDateTime = new Date(); // Lấy thời điểm hiện tại
 
             // Cập nhật trạng thái student_exam thành 3
-            const updatedStudentExam = { ...currentStudentExam, student_examstatus: 3 };
+            const updatedStudentExam = { ...currentStudentExam, end_examAt: currentDateTime, student_examstatus: 3 };
             await updateStudent_exam(currentStudentExam._id, updatedStudentExam);
             window.location.href = `/studentexam/exam/${student_examId}`;
         } catch (error) {
@@ -247,18 +288,27 @@ const Container = () => {
                                             <Button variant="secondary" onClick={handleNavigatePrevious}>Trước</Button>
                                             <Button variant="secondary" onClick={handleNavigateNext}>Tiếp</Button>
                                             <Button variant="primary" onClick={handleCheckCode}>Kiểm tra</Button>
-                                        </Col>
+                                            <div className="loading-container">
+                                                {loading && <div className="loading-spinner">Loading...</div>}
+                                            </div>                                        </Col>
 
                                         <Col md={12} >
                                             <Form.Group as={Row} className="mb-3" controlId="sourceCode" >
                                                 <Col md={12} sm={12} className="d-flex align-items-center">
-                                                    <Form.Control
-                                                        as="textarea"
-                                                        className="textarea-fixed" // Thêm lớp CSS vào đây
+                                                    <Editor
+                                                        options={{
+                                                            minimap: {
+                                                                enabled: false,
+                                                            },
+                                                            fontSize: "9px"
+                                                        }}
+                                                        height="38vh"
+                                                        theme="vs-dark"
+                                                        defaultLanguage="cpp"
                                                         value={sourceCode}
-                                                        onChange={e => setSourceCode(e.target.value)}
-                                                        rows="13"
+                                                        onChange={newValue => setSourceCode(newValue)}
                                                     />
+
                                                 </Col>
                                             </Form.Group>
                                         </Col>
