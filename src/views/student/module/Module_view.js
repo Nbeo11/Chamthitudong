@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import Modal from 'react-modal';
@@ -12,7 +11,7 @@ const Module = () => {
     const [organizedExams, setOrganizedExams] = useState([]);
     const [moduleDetails, setModuleDetails] = useState({});
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const studentId = localStorage.getItem('userId')
+    const studentId = localStorage.getItem('userId');
     const [selectedModuleId, setSelectedModuleId] = useState(null);
 
     useEffect(() => {
@@ -23,25 +22,27 @@ const Module = () => {
 
                 const moduleDetailsObject = {}; // Đối tượng chứa thông tin môn học và thời gian thi
                 for (const exam of response.organizeExams) {
-                    const moduleDetails = await getModuledetails(exam.moduleId);
+                    const moduleDetailsResponse = await getModuledetails(exam.moduleId);
                     // Lưu thông tin vào đối tượng moduleDetailsObject
-                    const examDetail = exam.details.find(detail => detail.gradeId === localStorage.getItem('gradeId'));
-                    const exam_date = examDetail ? examDetail.exam_date : 'N/A';
-                    const exam_start = examDetail ? examDetail.exam_start : 'N/A';
-                    const exam_end = examDetail ? examDetail.exam_end : 'N/A';
-                    console.log('examDetail: ', examDetail)
-                    console.log('exam_start: ', exam_start)
+                    const examDetails = exam.details.filter(detail => detail.gradeId === localStorage.getItem('gradeId'));
 
-                    moduleDetailsObject[exam.moduleId] = {
-                        moduleName: moduleDetails.modulename,
-                        examTime: exam.time_countdown,
-                        exam_date: exam_date,
-                        exam_start: exam_start,
-                        exam_end: exam_end
-                    };
+                    for (const examDetail of examDetails) {
+                        const exam_date = examDetail ? examDetail.exam_date : 'N/A';
+                        const exam_start = examDetail ? examDetail.exam_start : 'N/A';
+                        const exam_end = examDetail ? examDetail.exam_end : 'N/A';
+                        
+                        moduleDetailsObject[`${exam.moduleId}_${exam_start}`] = {
+                            moduleName: moduleDetailsResponse.modulename,
+                            examTime: exam.time_countdown,
+                            exam_date: exam_date,
+                            exam_start: exam_start,
+                            exam_end: exam_end,
+                            status: exam.status
+                        };
+                    }
                 }
                 setModuleDetails(moduleDetailsObject);
-                console.log('moduleDetailsObject: ', moduleDetailsObject)
+                console.log('moduleDetailsObject: ', moduleDetailsObject);
             } catch (error) {
                 console.error('Error fetching courses:', error);
             }
@@ -60,7 +61,9 @@ const Module = () => {
         const year = localDate.getFullYear();
         return `${day}-${month}-${year}`;
     };
+
     const formatTime = (dateString) => {
+        if (!dateString || dateString === 'N/A') return 'N/A';
         const date = new Date(dateString);
         date.setUTCHours(date.getUTCHours() + 7); // Thêm 7 giờ vào thời gian UTC
         const hours = date.getUTCHours();
@@ -68,15 +71,12 @@ const Module = () => {
         return `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
     };
 
-
     const handleStartExam = async () => {
         try {
-            // Gọi hàm deletedifficult với tham số _id để xóa difficulty
-            // await getByModuleandStudentId(selectedModuleId, studentId);
             setModalIsOpen(false); // Đóng hộp thoại sau khi xóa thành công
             window.location.href = `/studentexam/exam/${selectedModuleId}/${studentId}`;
         } catch (error) {
-            console.error('Error deleting difficulty:', error);
+            console.error('Error starting exam:', error);
         }
         console.log('Starting exam for module:', selectedModuleId);
     };
@@ -84,6 +84,13 @@ const Module = () => {
     const openModal = (moduleId) => {
         setSelectedModuleId(moduleId);
         setModalIsOpen(true);
+    };
+
+    const getModuleEntries = () => {
+        return Object.entries(moduleDetails).map(([key, details]) => ({
+            moduleId: key.split('_')[0],
+            ...details
+        }));
     };
 
     return (
@@ -95,31 +102,23 @@ const Module = () => {
                             <Card.Body className="border-bottom">
                                 <div className="row align-items-center">
                                     <div className="col-auto">
-                                        {moduleDetails[organizedExams[0].moduleId] && (
-                                            <h3>{moduleDetails[organizedExams[0].moduleId].moduleName}</h3>
-                                        )}
-                                        {moduleDetails[organizedExams[0].moduleId] && (
-                                            <p>Thời gian làm bài: {moduleDetails[organizedExams[0].moduleId].examTime} phút</p>
-                                        )}
-                                        {moduleDetails[organizedExams[0].moduleId] && (
-                                            <p>Ngày thi: {formatDate(moduleDetails[organizedExams[0].moduleId].exam_date)}</p>
-                                        )}
-                                        {moduleDetails[organizedExams[0].moduleId] && (
-                                            <p>Thời gian bắt đầu: {formatTime(moduleDetails[organizedExams[0].moduleId].exam_start)} - {formatTime(moduleDetails[organizedExams[0].moduleId].exam_end)}</p>
-                                        )}
-                                        <Button onClick={() => openModal(organizedExams[0].moduleId)}>Bắt đầu thi</Button>
-                                        <Button>
-                                            {organizedExams[0].status === 0 && "Sắp diễn ra"}
-                                            {organizedExams[0].status === 1 && "Đang diễn ra"}
-                                            {organizedExams[0].status === 2 && "Đã quá giờ"}
-                                        </Button>
-
-
+                                        {getModuleEntries().slice(0, 1).map((module, index) => (
+                                            <div key={index}>
+                                                <h3>{module.moduleName}</h3>
+                                                <p>Thời gian làm bài: {module.examTime} phút</p>
+                                                <p>Ngày thi: {formatDate(module.exam_date)}</p>
+                                                <p>Thời gian bắt đầu: {formatTime(module.exam_start)} - {formatTime(module.exam_end)}</p>
+                                                <Button onClick={() => openModal(module.moduleId)}>Bắt đầu thi</Button>
+                                                <Button>
+                                                    {module.status === 0 && "Sắp diễn ra"}
+                                                    {module.status === 1 && "Đang diễn ra"}
+                                                    {module.status === 2 && "Đã quá giờ"}
+                                                </Button>
+                                            </div>
+                                        ))}
                                     </div>
-                                    {/* Các phần còn lại của mã của bạn... */}
                                 </div>
                             </Card.Body>
-                            {/* Các phần còn lại của mã của bạn... */}
                         </Card>
                     )}
                 </Col>
@@ -135,52 +134,37 @@ const Module = () => {
                                         <p>Bước 2: Đọc câu hỏi và lựa chọn đáp án đúng</p>
                                         <p>Bước 3: Ấn Finish để kết thúc quá trình thi</p>
                                         <p>Bước 4: Tra cứu kết quả thi</p>
-
                                     </div>
-                                    {/* Các phần còn lại của mã của bạn... */}
                                 </div>
                             </Card.Body>
-                            {/* Các phần còn lại của mã của bạn... */}
                         </Card>
                     )}
                 </Col>
             </div>
             <Row>
                 <h4>CÁC HỌC PHẦN TRONG KỲ HỌC</h4>
-                {organizedExams.slice(1).map((exam, index) => (
-                    <Col key={index} md={6} xl={4} >
+                {getModuleEntries().slice(1).map((module, index) => (
+                    <Col key={index} md={6} xl={4}>
                         <Card className="card-social">
                             <Card.Body className="border-bottom">
                                 <div className="row align-items-center justify-content-center">
                                     <div className="col-auto">
-                                        {moduleDetails[exam.moduleId] && (
-                                            <h3>{moduleDetails[exam.moduleId].moduleName}</h3>
-                                        )}
-                                        {moduleDetails[exam.moduleId] && (
-                                            <p>Thời gian làm bài: {moduleDetails[exam.moduleId].examTime} phút</p>
-                                        )}
-                                        {moduleDetails[exam.moduleId] && (
-                                            <p>Ngày thi: {formatDate(moduleDetails[exam.moduleId].exam_date)}</p>
-                                        )}
-                                        {moduleDetails[exam.moduleId] && (
-                                            <p>Thời gian bắt đầu: {formatTime(moduleDetails[exam.moduleId].exam_start)} - {formatTime(moduleDetails[exam.moduleId].exam_end)}</p>
-                                        )}
-                                        <Button onClick={() => handleStartExam(exam.moduleId)}>Bắt đầu thi</Button>
+                                        <h3>{module.moduleName}</h3>
+                                        <p>Thời gian làm bài: {module.examTime} phút</p>
+                                        <p>Ngày thi: {formatDate(module.exam_date)}</p>
+                                        <p>Thời gian bắt đầu: {formatTime(module.exam_start)} - {formatTime(module.exam_end)}</p>
+                                        <Button onClick={() => handleStartExam(module.moduleId)}>Bắt đầu thi</Button>
                                         <Button>
-                                            {exam.status === 0 && "Sắp diễn ra"}
-                                            {exam.status === 1 && "Đang diễn ra"}
-                                            {exam.status === 2 && "Đã quá giờ"}
+                                            {module.status === 0 && "Sắp diễn ra"}
+                                            {module.status === 1 && "Đang diễn ra"}
+                                            {module.status === 2 && "Đã quá giờ"}
                                         </Button>
                                     </div>
-                                    {/* Các phần còn lại của mã của bạn... */}
                                 </div>
                             </Card.Body>
-                            {/* Các phần còn lại của mã của bạn... */}
                         </Card>
                     </Col>
-
                 ))}
-
             </Row>
             <Modal
                 isOpen={modalIsOpen}
@@ -211,7 +195,6 @@ const Module = () => {
                         <Button className='back-button' onClick={() => setModalIsOpen(false)}>Hủy</Button>
                     </div>
                 </div>
-
             </Modal>
         </React.Fragment>
     );
