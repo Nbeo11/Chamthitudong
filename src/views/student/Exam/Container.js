@@ -197,13 +197,13 @@ const Container = () => {
         };
 
         try {
-            // Gọi hàm để lấy mã sinh viên dựa trên student_examId và question_bankId
+            // Gọi hàm để lấy mã code dựa trên student_examId và question_bankId
             const existingCode = await getStudentcodebyStudent_examandQuestion(student_examId, selectedQuestion);
 
             if (!existingCode) {
                 continueWithOtherFunction(data);
             } else {
-                // Nếu có mã sinh viên, cập nhật mã sinh viên
+                // Nếu có mã code, cập nhật mã code
                 const response = await updateStudentcode(existingCode._id, data);
                 console.log('API Response for update:', response);
             }

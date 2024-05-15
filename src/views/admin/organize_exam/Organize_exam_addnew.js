@@ -223,13 +223,15 @@ const Organize_exam_addnew = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString || dateString === 'N/A') return 'N/A';
         const date = new Date(dateString);
-        const day = date.getDate();
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
+        const localDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000)); // Chuyển đổi từ UTC sang giờ địa phương
+    
+        const day = localDate.getDate();
+        const month = localDate.getMonth() + 1;
+        const year = localDate.getFullYear();
         return `${day}-${month}-${year}`;
     };
-
 
     return (
         <React.Fragment>
